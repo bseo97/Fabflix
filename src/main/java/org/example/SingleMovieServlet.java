@@ -39,7 +39,7 @@ public class SingleMovieServlet extends HttpServlet {
             DataSource ds = (DataSource) envCtx.lookup("jdbc/moviedb");
             Connection conn = ds.getConnection();
 
-            String query = "SELECT m.id, m.title, m.year, m.director, r.rating, " +
+            String query = "SELECT m.id, m.title, m.year, m.director, MAX(r.rating) AS rating, " +
                     "GROUP_CONCAT(DISTINCT g.name) AS genres, " +
                     "GROUP_CONCAT(DISTINCT s.name) AS stars " +
                     "FROM movies m " +
@@ -62,8 +62,12 @@ public class SingleMovieServlet extends HttpServlet {
                 movieJson.put("year", rs.getInt("year"));
                 movieJson.put("director", rs.getString("director"));
                 movieJson.put("rating", rs.getDouble("rating"));
-                movieJson.put("genres", rs.getString("genres"));
-                movieJson.put("stars", rs.getString("stars"));
+                
+                String[] genres = rs.getString("genres") != null ? rs.getString("genres").split(",") : new String[0];
+                String[] stars = rs.getString("stars") != null ? rs.getString("stars").split(",") : new String[0];
+    
+                movieJson.put("genres", genres);
+                movieJson.put("stars", stars);
             }
 
             rs.close();
@@ -74,6 +78,7 @@ public class SingleMovieServlet extends HttpServlet {
             response.setStatus(200);
 
         } catch (Exception e) {
+            e.printStackTrace();
             JSONObject error = new JSONObject();
             error.put("errorMessage", e.getMessage());
             out.write(error.toString());

@@ -41,6 +41,15 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>Top20Servlet</servlet-name>
+        <servlet-class>org.example.Top20Servlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Top20Servlet</servlet-name>
+        <url-pattern>/api/top20-rated</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>MovieListServlet</servlet-name>
         <servlet-class>org.example.MovieListServlet</servlet-class>
     </servlet>

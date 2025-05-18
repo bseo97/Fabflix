@@ -156,8 +156,10 @@
                     <tr>
                         <th>Title</th>
                         <th>Year</th>
-                        <th>Director</th>
+                        <th>Genre</th>
                         <th>Rating</th>
+                        <th>Director</th>
+                        <th>Stars</th>
                     </tr>
                 </thead>
                 <tbody id="movieTableBody">
@@ -262,7 +264,7 @@
                     nav.appendChild(button);
     
                     // Fetch top 20 movies only if logged in
-                    fetch("/api/top20", {
+                    fetch("/api/top20-rated", {
                         credentials: "include"
                     })
                     .then(response => response.json())
@@ -270,11 +272,19 @@
                         const tableBody = document.getElementById('movieTableBody');
                         movies.forEach(movie => {
                             const row = document.createElement('tr');
+
+                            const genres = Array.isArray(movie.genres) ? movie.genres.join(", ") : "N/A";
+                            const stars = Array.isArray(movie.stars)
+                                ? movie.stars.map(star => `<a href="single-star.html?name=${encodeURIComponent(star)}">${star}</a>`).join(", ")
+                                : "N/A";
+
                             row.innerHTML = `
-                                <td><a href="movie.html?id=${movie.id}">${movie.title}</a></td>
+                                <td><a href="single-movie.html?id=${movie.id}">${movie.title}</a></td>
                                 <td>${movie.year}</td>
-                                <td>${movie.director}</td>
+                                <td>${genres}</td>
                                 <td>${movie.rating}</td>
+                                <td>${movie.director}</td>
+                                <td>${stars}</td>
                             `;
                             tableBody.appendChild(row);
                         });

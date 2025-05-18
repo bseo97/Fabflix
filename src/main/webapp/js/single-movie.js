@@ -7,18 +7,23 @@ window.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    fetch(`api/movie?id=${encodeURIComponent(movieId)}`)
+    fetch(`/api/single-movie?id=${encodeURIComponent(movieId)}`)
         .then(response => response.json())
         .then(movie => {
             document.getElementById("movie-title").textContent = movie.title;
             document.getElementById("movie-year").textContent = movie.year;
             document.getElementById("movie-director").textContent = movie.director;
-            document.getElementById("movie-genres").textContent = movie.genres?.join(", ") ?? "N/A";
-            
-            // Create star links
-            const starLinks = movie.stars?.map(star => 
-                `<a href="single-star.html?name=${encodeURIComponent(star)}">${star}</a>`
-            ).join(", ") ?? "N/A";
+
+            // Genres (already an array)
+            document.getElementById("movie-genres").textContent = Array.isArray(movie.genres)
+                ? movie.genres.join(", ")
+                : "N/A";
+
+            // Stars (already an array)
+            const stars = Array.isArray(movie.stars) ? movie.stars : [];
+            const starLinks = stars.length
+                ? stars.map(star => `<a href="single-star.html?name=${encodeURIComponent(star.trim())}">${star.trim()}</a>`).join(", ")
+                : "N/A";
             document.getElementById("movie-stars").innerHTML = starLinks;
 
             document.getElementById("movie-rating").textContent = (movie.rating !== undefined)
@@ -29,4 +34,4 @@ window.addEventListener("DOMContentLoaded", () => {
             console.error("Error fetching movie details:", error);
             document.body.innerHTML = "<h1>Error loading movie details</h1>";
         });
-}); 
+});
