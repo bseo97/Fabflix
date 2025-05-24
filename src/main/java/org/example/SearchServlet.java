@@ -12,10 +12,10 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class SearchServlet extends HttpServlet {
+
     @Resource(name = "jdbc/moviedb")
     private DataSource dataSource;
 
@@ -31,15 +31,18 @@ public class SearchServlet extends HttpServlet {
             return;
         }
 
-        String title = request.getParameter("title");
-        String year = request.getParameter("year");
-        String director = request.getParameter("director");
-        String star = request.getParameter("star");
+        String input = request.getParameter("title");
+        List<String> titleList = new ArrayList<>();
+        if (input != null && !input.trim().isEmpty()) {
+            titleList = Arrays.asList(input.trim().split("\\s+"));
+        }
+
         String startsWith = request.getParameter("startsWith");
         String genre = request.getParameter("genre");
         String sort = request.getParameter("sort");
         String order = request.getParameter("order");
         String limit = request.getParameter("limit");
+        String ac = request.getParameter("ac");
 
         List<String> validSort = List.of("title", "rating");
         List<String> validOrder = List.of("asc", "desc");
@@ -73,28 +76,19 @@ public class SearchServlet extends HttpServlet {
                 params.add(genre);
             }
 
-            if (title != null && !title.isEmpty()) {
-                conditions.add("m.title LIKE ?");
-                params.add("%" + title + "%");
-            }
-
-            if (year != null && !year.isEmpty()) {
-                conditions.add("m.year = ?");
-                try {
-                    params.add(Integer.parseInt(year));
-                } catch (NumberFormatException e) {
-                    // ignore invalid year
+            // ✅ Allow full-text on 1+ char tokens (e.g., "s lov" → +s* +lov*)
+            if (!titleList.isEmpty()) {
+                StringBuilder fullTextQuery = new StringBuilder();
+                for (String word : titleList) {
+                    if (word.length() >= 1) {
+                        if (fullTextQuery.length() > 0) fullTextQuery.append(" ");
+                        fullTextQuery.append("+").append(word).append("*");
+                    }
                 }
-            }
-
-            if (director != null && !director.isEmpty()) {
-                conditions.add("m.director LIKE ?");
-                params.add("%" + director + "%");
-            }
-
-            if (star != null && !star.isEmpty()) {
-                conditions.add("EXISTS (SELECT 1 FROM stars s2 JOIN stars_in_movies sim2 ON s2.id = sim2.starId WHERE sim2.movieId = m.id AND s2.name LIKE ?)");
-                params.add("%" + star + "%");
+                if (fullTextQuery.length() > 0) {
+                    conditions.add("MATCH(m.title) AGAINST (? IN BOOLEAN MODE)");
+                    params.add(fullTextQuery.toString());
+                }
             }
 
             if (startsWith != null && !startsWith.isEmpty()) {
@@ -126,25 +120,49 @@ public class SearchServlet extends HttpServlet {
             }
 
             statement.setInt(paramIndex, pageLimit);
+            System.out.println("Executing SQL: " + statement);
 
-            System.out.println("Executing: " + statement);
             ResultSet rs = statement.executeQuery();
 
-            JSONArray movies = new JSONArray();
+            if ("yes".equals(ac)) {
+                System.out.println("Autocomplete search initiated");
+                JSONArray suggestions = new JSONArray();
 
-            while (rs.next()) {
-                JSONObject movie = new JSONObject();
-                movie.put("id", rs.getString("id"));
-                movie.put("title", rs.getString("title"));
-                movie.put("year", rs.getInt("year"));
-                movie.put("director", rs.getString("director"));
-                movie.put("rating", rs.getDouble("rating"));
-                movie.put("stars", rs.getString("stars") == null ? "" : rs.getString("stars"));
-                movies.put(movie);
+                while (rs.next()) {
+                    JSONObject suggestion = new JSONObject();
+                    suggestion.put("value", rs.getString("title"));
+                    suggestion.put("data", rs.getString("id"));
+                    suggestions.put(suggestion);
+                }
+
+                JSONObject result = new JSONObject();
+                result.put("query", input);
+                result.put("suggestions", suggestions);
+
+                System.out.println("autocomplete used backend results.");
+                System.out.println("suggest: " + suggestions.toString());
+
+                out.write(result.toString());
+                response.setStatus(200);
+
+            } else {
+                JSONArray movies = new JSONArray();
+
+                while (rs.next()) {
+                    JSONObject movie = new JSONObject();
+                    movie.put("id", rs.getString("id"));
+                    movie.put("title", rs.getString("title"));
+                    movie.put("year", rs.getInt("year"));
+                    movie.put("director", rs.getString("director"));
+                    movie.put("rating", rs.getDouble("rating"));
+                    movie.put("stars", rs.getString("stars") == null ? "" : rs.getString("stars"));
+                    movies.put(movie);
+                }
+
+                out.write(movies.toString());
+                response.setStatus(200);
             }
 
-            out.write(movies.toString());
-            response.setStatus(200);
             rs.close();
             statement.close();
 
@@ -162,6 +180,6 @@ public class SearchServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doGet(request, response); // Forward POST to GET handler
+        doGet(request, response);
     }
 }

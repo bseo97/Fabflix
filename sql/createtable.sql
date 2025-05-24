@@ -61,6 +61,12 @@ CREATE TABLE customers (
    FOREIGN KEY (ccId) REFERENCES creditcards(id)
 );
 
+CREATE TABLE employees (
+    email varchar(50) primary key,
+    password varchar(20) not null,
+    fullname varchar(100)
+);
+
 -- Table: sales
 CREATE TABLE sales (
    id INT AUTO_INCREMENT PRIMARY KEY,
@@ -78,5 +84,8 @@ CREATE TABLE ratings (
     numVotes INT NOT NULL,
     FOREIGN KEY (movieId) REFERENCES movies(id)
 );
-INSERT INTO customers (firstName, lastName, ccId, address, email, password)
-VALUES ('A2', 'Test', NULL, '519 E peltason dr.', 'a2@email.com', 'a2');
+INSERT INTO customers (id, firstName, lastName, ccId, address, email, password)
+VALUES (NULL, 'A2', 'Test', NULL, '519 E peltason dr.', 'a2@email.com', 'a2');
+
+INSERT INTO employees (email, password, fullname)
+VALUES ('classta@email.edu', 'classta', 'TA CS122B');

@@ -112,6 +112,17 @@
         th {
             background-color: #f8f9fa;
         }
+        #title-container {
+            position: relative;
+            width: 300px;
+        }
+        .autocomplete-suggestions { background: #FFF; overflow: auto; }
+        .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
+        .autocomplete-selected { background: #F0F0F0; }
+        .autocomplete-suggestions strong { font-weight: normal; color: #3399FF; }
+        .autocomplete-group { padding: 2px 5px; }
+        .autocomplete-group strong { display: block; border-bottom: 1px solid #000; }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -125,6 +136,10 @@
             }
         }
     </style>
+    <!-- include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- include jquery autocomplete JS  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.min.js"></script>
 </head>
 <body>
     <div class="header">
@@ -136,10 +151,16 @@
             <a id="login-link" href="login.html">Login</a>
         </div>
         <form class="search-form" action="result.html" method="GET">
-            <input type="text" name="title" placeholder="Title">
-            <input type="text" name="year" placeholder="Year">
+            <div id="title-container">
+                <input id="autocomplete" type="text" name="title" placeholder="Title">
+                <div class="autocomplete-suggestions">
+                </div>
+            </div>
+
+            <!-- here -->
+            <!-- <input type="text" name="year" placeholder="Year">
             <input type="text" name="director" placeholder="Director">
-            <input type="text" name="star" placeholder="Star">
+            <input type="text" name="star" placeholder="Star"> -->
             <button type="submit">Search</button>
         </form>
     </div>
@@ -299,6 +320,80 @@
                     nav.appendChild(loginAnchor);
                 }
             });
+        });
+
+        // Autocomplete 
+        function handleLookup(query, doneCallback) {
+            console.log("autocomplete initiated");
+
+            const normalized = query.trim().toLowerCase().split(/\s+/).filter(w => w.length >= 1).sort().join(" ");
+            const cached = localStorage.getItem(normalized);
+
+            if (cached) {
+                console.log("autocomplete done with cache");
+                const parsed = JSON.parse(cached);
+                handleLookupAjaxSuccess(parsed, query, doneCallback);
+                return;
+            }
+
+            console.log("autocomplete done with ajax");
+            jQuery.ajax({
+                method: "GET",
+                url: "api/search?title=" + encodeURIComponent(query) + "&limit=10&ac=yes",
+                success: function(data) {
+                    const suggestions = data.suggestions || [];
+                    try {
+                        localStorage.setItem(normalized, JSON.stringify(suggestions));
+                    } catch (e) {
+                        console.warn("Could not store in local storage", e);
+                    }
+                    handleLookupAjaxSuccess(suggestions, query, doneCallback);
+                },
+                error: function(errorData) {
+                    console.log("lookup ajax error");
+                    console.log(errorData);
+                }
+            });
+        }
+
+
+        // call doneCallback with successful data retrieval
+        function handleLookupAjaxSuccess(data, query, doneCallback) {
+            const input = query.trim();
+            const suggest = data ? data.map(movie => ({
+                value: movie.value,
+                data: movie.data
+            }))
+            : [];
+
+            try {
+                localStorage.setItem(query, JSON.stringify(suggest));
+            }
+            catch (e) {
+                console.warn("Could not store in local storage", e);
+            }
+            console.log("suggest: ", suggest);
+
+            doneCallback( { query: query, suggestions: suggest } );
+        }
+
+        // Search from autocomplete directly
+        function handleSelectSuggestion(suggestion) {
+            const params = new URLSearchParams();
+            params.set("id", suggestion.data);
+            window.location.href = "single-movie.html?" + params.toString();
+        }
+
+        $('#autocomplete').autocomplete({
+            lookup: function (query, doneCallback) {
+                    handleLookup(query, doneCallback)
+            },
+            onSelect: function(suggestion) {
+                    handleSelectSuggestion(suggestion)
+            },
+            deferRequestBy: 300,
+            zIndex: 9999,
+            minChars: 3,
         });
         </script>
 </body>

@@ -64,6 +64,7 @@
                 <th>Title</th>
                 <th>Year</th>
                 <th>Director</th>
+                <th>Genres</th>
                 <th>Rating</th>
                 <th>Stars</th>
             </tr>
@@ -99,20 +100,27 @@
                 .then(data => {
                     const movieResults = document.getElementById("movieResults");
                     movieResults.innerHTML = "";
+
                     data.forEach(movie => {
+                        const genres = Array.isArray(movie.genres) ? movie.genres.join(", ") : "N/A";
+                        const stars = Array.isArray(movie.stars)
+                            ? movie.stars.map(star => `<a href="single-star.html?name=${encodeURIComponent(star)}">${star}</a>`).join(", ")
+                            : "N/A";
+
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                            <td>${movie.title}</td>
+                            <td><a href="single-movie.html?id=${encodeURIComponent(movie.id)}">${movie.title}</a></td>
                             <td>${movie.year}</td>
                             <td>${movie.director}</td>
-    <td>${Number(movie.rating).toFixed(1)}</td>
-                            <td>${movie.stars}</td>
+                            <td>${genres}</td>
+                            <td>${Number(movie.rating).toFixed(1)}</td>
+                            <td>${stars}</td>
                         `;
                         movieResults.appendChild(row);
                     });
                 })
                 .catch(error => console.error("Error fetching movie data:", error));
-        }
+            }
 
         document.addEventListener("DOMContentLoaded", () => {
             const params = getParams();
