@@ -130,7 +130,9 @@ public class SearchServlet extends HttpServlet {
 
                 while (rs.next()) {
                     JSONObject suggestion = new JSONObject();
-                    suggestion.put("value", rs.getString("title"));
+                    String title = rs.getString("title");
+                    int year = rs.getInt("year");
+                    suggestion.put("value", title + " (" + year + ")");
                     suggestion.put("data", rs.getString("id"));
                     suggestions.put(suggestion);
                 }

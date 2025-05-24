@@ -32,9 +32,11 @@
         }
         .search-form {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-wrap: nowrap;
+            gap: 8px;
             align-items: center;
+            width: 100%;
+            max-width: 600px;
         }
         .container {
             max-width: 1200px;
@@ -52,13 +54,12 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        .search-form button {
-            padding: 8px 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
+        .search-form input {
+            width: 100%; /* take full width of container */
+            padding: 8px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            cursor: pointer;
+            font-size: 16px;
         }
         .search-form button:hover {
             background-color: #0056b3;
@@ -114,7 +115,7 @@
         }
         #title-container {
             position: relative;
-            width: 300px;
+            min-width: 400px;
         }
         .autocomplete-suggestions { background: #FFF; overflow: auto; }
         .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
@@ -325,8 +326,8 @@
         // Autocomplete 
         function handleLookup(query, doneCallback) {
             console.log("autocomplete initiated");
-
             const normalized = query.trim().toLowerCase().split(/\s+/).filter(w => w.length >= 1).sort().join(" ");
+        
             const cached = localStorage.getItem(normalized);
 
             if (cached) {
@@ -336,7 +337,6 @@
                 return;
             }
 
-            console.log("autocomplete done with ajax");
             jQuery.ajax({
                 method: "GET",
                 url: "api/search?title=" + encodeURIComponent(query) + "&limit=10&ac=yes",
@@ -356,28 +356,15 @@
             });
         }
 
-
-        // call doneCallback with successful data retrieval
         function handleLookupAjaxSuccess(data, query, doneCallback) {
-            const input = query.trim();
             const suggest = data ? data.map(movie => ({
-                value: movie.value,
-                data: movie.data
-            }))
-            : [];
-
-            try {
-                localStorage.setItem(query, JSON.stringify(suggest));
-            }
-            catch (e) {
-                console.warn("Could not store in local storage", e);
-            }
+                value: movie.value || "Unknown Title",
+                data: movie.data || "undefined"
+            })) : [];
             console.log("suggest: ", suggest);
-
-            doneCallback( { query: query, suggestions: suggest } );
+            doneCallback({ query: query, suggestions: suggest });
         }
 
-        // Search from autocomplete directly
         function handleSelectSuggestion(suggestion) {
             const params = new URLSearchParams();
             params.set("id", suggestion.data);
@@ -386,15 +373,15 @@
 
         $('#autocomplete').autocomplete({
             lookup: function (query, doneCallback) {
-                    handleLookup(query, doneCallback)
+                handleLookup(query, doneCallback);
             },
             onSelect: function(suggestion) {
-                    handleSelectSuggestion(suggestion)
+                handleSelectSuggestion(suggestion);
             },
             deferRequestBy: 300,
             zIndex: 9999,
-            minChars: 3,
+            minChars: 3
         });
-        </script>
+    </script>
 </body>
 </html>
