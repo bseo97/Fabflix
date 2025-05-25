@@ -102,9 +102,18 @@
                     movieResults.innerHTML = "";
 
                     data.forEach(movie => {
-                        const genres = Array.isArray(movie.genres) ? movie.genres.join(", ") : "N/A";
-                        const stars = Array.isArray(movie.stars)
-                            ? movie.stars.map(star => `<a href="single-star.html?name=${encodeURIComponent(star)}">${star}</a>`).join(", ")
+                        const genres = typeof movie.genres === "string" && movie.genres.trim() !== ""
+                            ? movie.genres
+                            : "N/A";
+
+                        const stars = typeof movie.stars === "string" && movie.stars.trim() !== ""
+                            ? movie.stars.split(",").map(star =>
+                                `<a href="single-star.html?name=${encodeURIComponent(star.trim())}">${star.trim()}</a>`
+                              ).join(", ")
+                            : "N/A";
+
+                        const ratingDisplay = movie.rating !== undefined && !isNaN(movie.rating)
+                            ? Number(movie.rating).toFixed(1)
                             : "N/A";
 
                         const row = document.createElement("tr");
@@ -113,14 +122,14 @@
                             <td>${movie.year}</td>
                             <td>${movie.director}</td>
                             <td>${genres}</td>
-                            <td>${Number(movie.rating).toFixed(1)}</td>
+                            <td>${ratingDisplay}</td>
                             <td>${stars}</td>
                         `;
                         movieResults.appendChild(row);
                     });
                 })
                 .catch(error => console.error("Error fetching movie data:", error));
-            }
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
             const params = getParams();

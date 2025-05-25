@@ -63,20 +63,20 @@ public class SearchServlet extends HttpServlet {
             List<Object> params = new ArrayList<>();
 
             query.append("SELECT m.id, m.title, m.year, m.director, IFNULL(r.rating, 0.0) AS rating, ");
-            query.append("GROUP_CONCAT(DISTINCT s.name SEPARATOR ', ') AS stars ");
+            query.append("GROUP_CONCAT(DISTINCT s.name SEPARATOR ', ') AS stars, ");
+            query.append("GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') AS genres ");
             query.append("FROM movies m ");
             query.append("LEFT JOIN ratings r ON m.id = r.movieId ");
             query.append("LEFT JOIN stars_in_movies sim ON m.id = sim.movieId ");
             query.append("LEFT JOIN stars s ON sim.starId = s.id ");
+            query.append("LEFT JOIN genres_in_movies gim ON m.id = gim.movieId ");
+            query.append("LEFT JOIN genres g ON gim.genreId = g.id ");
 
             if (genre != null && !genre.isEmpty()) {
-                query.append("JOIN genres_in_movies gim ON m.id = gim.movieId ");
-                query.append("JOIN genres g ON gim.genreId = g.id ");
                 conditions.add("g.name = ?");
                 params.add(genre);
             }
 
-            // ✅ Allow full-text on 1+ char tokens (e.g., "s lov" → +s* +lov*)
             if (!titleList.isEmpty()) {
                 StringBuilder fullTextQuery = new StringBuilder();
                 for (String word : titleList) {
@@ -142,11 +142,8 @@ public class SearchServlet extends HttpServlet {
                 result.put("suggestions", suggestions);
 
                 System.out.println("autocomplete used backend results.");
-                System.out.println("suggest: " + suggestions.toString());
-
                 out.write(result.toString());
                 response.setStatus(200);
-
             } else {
                 JSONArray movies = new JSONArray();
 
@@ -158,6 +155,7 @@ public class SearchServlet extends HttpServlet {
                     movie.put("director", rs.getString("director"));
                     movie.put("rating", rs.getDouble("rating"));
                     movie.put("stars", rs.getString("stars") == null ? "" : rs.getString("stars"));
+                    movie.put("genres", rs.getString("genres") == null ? "" : rs.getString("genres")); // ✅ Added
                     movies.put(movie);
                 }
 

@@ -43,7 +43,7 @@ public class SingleMovieServlet extends HttpServlet {
                     "GROUP_CONCAT(DISTINCT g.name) AS genres, " +
                     "GROUP_CONCAT(DISTINCT s.name) AS stars " +
                     "FROM movies m " +
-                    "JOIN ratings r ON m.id = r.movieId " +
+                    "LEFT JOIN ratings r ON m.id = r.movieId " +
                     "LEFT JOIN genres_in_movies gim ON m.id = gim.movieId " +
                     "LEFT JOIN genres g ON gim.genreId = g.id " +
                     "LEFT JOIN stars_in_movies sim ON m.id = sim.movieId " +
@@ -61,7 +61,12 @@ public class SingleMovieServlet extends HttpServlet {
                 movieJson.put("title", rs.getString("title"));
                 movieJson.put("year", rs.getInt("year"));
                 movieJson.put("director", rs.getString("director"));
-                movieJson.put("rating", rs.getDouble("rating"));
+                double rating = rs.getDouble("rating");
+                if (rs.wasNull()) {
+                    movieJson.put("rating", JSONObject.NULL);
+                } else {
+                    movieJson.put("rating", rating);
+                }
                 
                 String[] genres = rs.getString("genres") != null ? rs.getString("genres").split(",") : new String[0];
                 String[] stars = rs.getString("stars") != null ? rs.getString("stars").split(",") : new String[0];
