@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>ROOT</artifactId>
+    <artifactId>fabflix</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>CS122B Project 2</name>
+    <name>CS122B Project 4</name>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -78,7 +78,7 @@
     </dependencies>
 
     <build>
-        <finalName>ROOT</finalName>
+        <finalName>fabflix</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
