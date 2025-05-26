@@ -247,7 +247,7 @@
             <h2>Browse by Genre</h2>
             <div class="genres-grid" id="genreGrid"></div>
             <script>
-                fetch("/api/genres", { credentials: "include" })
+                fetch("/fabflix/api/genres", { credentials: "include" })
                     .then(response => response.json())
                     .then(genres => {
                         const container = document.getElementById("genreGrid");
@@ -269,7 +269,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Session check & dynamic logout button
-            fetch("api/session-check", {
+            fetch("/fabflix/api/session-check", {
                 credentials: "include"
             })
             .then(response => response.json())
@@ -282,7 +282,7 @@
                     const button = document.createElement("button");
                     button.textContent = "Logout";
                     button.onclick = function () {
-                        fetch("api/logout", {
+                        fetch("/fabflix/api/logout", {
                             method: "POST",
                             credentials: "include"
                         }).then(res => {
@@ -298,7 +298,7 @@
                     nav.appendChild(button);
     
                     // Fetch top 20 movies only if logged in
-                    fetch("/api/top20-rated", {
+                    fetch("/fabflix/api/top20-rated", {
                         credentials: "include"
                     })
                     .then(response => response.json())

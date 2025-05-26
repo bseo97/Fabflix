@@ -195,7 +195,7 @@
             order.addEventListener("change", updateAndReload);
             limit.addEventListener("change", updateAndReload);
 
-            fetch("/api/search?" + params.toString())
+            fetch("/fabflix/api/search?" + params.toString())
                 .then(response => response.json())
                 .then(data => {
                     const movieResults = document.getElementById("movieResults");
@@ -254,7 +254,7 @@
             });
 
             // Session check
-            fetch("api/session-check", { credentials: "include" })
+            fetch("/fabflix/api/session-check", { credentials: "include" })
                 .then(res => res.json())
                 .then(data => {
                     const nav = document.querySelector(".nav-links");
@@ -265,7 +265,7 @@
                         const logout = document.createElement("button");
                         logout.textContent = "Logout";
                         logout.onclick = () => {
-                            fetch("api/logout", {
+                            fetch("/fabflix/api/logout", {
                                 method: "POST",
                                 credentials: "include"
                             }).then(res => {

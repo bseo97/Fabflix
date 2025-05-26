@@ -29,7 +29,7 @@
             event.preventDefault(); // Prevent form from submitting the traditional way
             const formData = new FormData(this);
 
-            fetch('/api/search', {
+            fetch('/fabflix/api/search', {
                 method: 'POST',
                 body: formData,
                 credentials: 'include' // Include session cookies if needed
