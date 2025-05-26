@@ -42,10 +42,7 @@ We configured Tomcat to use JDBC Connection Pooling via context.xml using <Resou
 This avoids repeatedly creating and destroying DB connections, which improves scalability and performance under concurrent load.
 
 - #### Explain how Connection Pooling works with two backend SQL:
-We define two separate <Resource> tags in context.xml:
-- One for the master (write + read)
-- One for the slave (read-only)
-Then in the Java servlets, we use logic to determine which data source to connect to based on whether the query is read or write. For example, SearchServlet uses the slave, while AddMovieServlet uses the master.
+In our context.xml, we define one <Resource> named jdbc/moviedb for connection pooling. This connects to the master MySQL instance, which handles both reads and writes. Although we set up MySQL master-slave replication for backend redundancy, our web application connects to the master DB only. This ensures that both read and write queries go to a consistent, up-to-date source. The connection pooling avoids repeated connection creation by reusing database connections efficiently under concurrent load.
 
 - # Master/Slave
 
@@ -63,8 +60,6 @@ Then in the Java servlets, we use logic to determine which data source to connec
 - src/main/java/org/example/SingleStarServlet.java
 
 - #### How read/write requests were routed to Master/Slave SQL?
-- We configured MySQL master-slave replication. The Tomcat server connects to the master DB (jdbc/moviedb) using connection pooling defined in context.xml.
-- Although our servlets all connect via a single @Resource(name = "jdbc/moviedb"), read queries from the slave are served automatically because the slave syncs with the master using replication.
-- We do not separate reads and writes in code, but the system maintains data consistency via MySQL replication.
+- We configured MySQL master-slave replication. The Tomcat server connects to the master DB (jdbc/moviedb) using connection pooling defined in context.xml. Although our servlets all connect via a single @Resource(name = "jdbc/moviedb"), read queries from the slave are served automatically because the slave syncs with the master using replication. We do not separate reads and writes in code, but the system maintains data consistency via MySQL replication.
 
 
