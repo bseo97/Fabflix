@@ -1,126 +1,61 @@
 
-# 🎬 Fabflix - Project 3
+# Fabflix Project 4 - Scaled Web App with Connection Pooling and Master/Slave
 
-## Deployment Info
-- **URL(Customers)**: https://18.119.142.99:8443/main.html
- - **Credentials**:
-   - email: `a2@email.com`
-   - Password: `a2`
-    
-- **URL(Employees)**: https://18.119.142.99:8443/fabflix/_dashboard/dashboard.html
- - **Credentials**:
-   - email: `classta@email.edu`
-   - Password: `classta`
-     
-- **Tomcat Manager**: https://18.119.142.99:8443/manager/html
- - **Credentials**:
-   - Username: `admin`
-   - Password: `mypassword`
+- # General
 
-## Team Members
-- **Brian Seo** — XML Parsing, recaptcha Implementation,HTTPs, and Prepared Statements for SQL injection Prevention, AWS Deployment
-- **Lucas Kim** — Frontend Features, UI/UX, Encryption, Dashboard and Stored Procedures
+- #### Names: Brian Seo, Lucas Kim
 
-## Demo Video
-https://youtu.be/DaNoGcySF1w
+- #### Project 4 Video Demo Link:
+link
 
----
+- #### Instruction of deployment:
+1. Start both Master and Slave MySQL servers.
+2. Ensure context.xml is configured with connection URLs to both databases with connection pooling.
+3. Deploy the .war file to Tomcat 10.1+ using EC2 instances.
+4. Set up HTTPS and verify the app runs on the secure endpoint.
 
-## Security Enhancements
+- #### Collaborations and Work Distribution:
+- Brian Seo: JDBC Connection Pooling integration, Master/Slave Replication, MySQL/Tomcat Load Balancing, AutoComplete, and README. 
+- Lucas Kim: Full-text search, testing
 
-### Task 1: reCAPTCHA
-- Integrated Google reCAPTCHA on the login page.
-- Backend verifies reCAPTCHA token with Google's verification API.
-- Keys registered for both `localhost` and AWS IP.
+- # Connection Pooling
 
-### Task 2: HTTPS
-- Configured Tomcat SSL on port `8443` using a self-signed certificate.
-- All HTTP traffic redirected to HTTPS via `web.xml` security constraints.
-- HTTPS enforced on all sensitive endpoints (login, payment, employee dashboard).
+- #### Include the filename/path of all code/configuration files in GitHub of using JDBC Connection Pooling:
 
-### Task 3: PreparedStatement
-- All servlets use `PreparedStatement` to prevent SQL injection.
-- No user inputs are concatenated directly into SQL strings.
-- Example:
-  ```java
-  String query = "SELECT * FROM movies WHERE title LIKE ?";
-  PreparedStatement ps = conn.prepareStatement(query);
-  ps.setString(1, "%" + title + "%");
-  ```
+- src/main/java/org/example/GenreServlet.java
+- src/main/java/org/example/AddMovieServlet.java
+- src/main/java/org/example/AddStarServlet.java
+- src/main/java/org/example/BrowseServlet.java
+- src/main/java/org/example/MovieListServlet.java
+- src/main/java/org/example/LoginServlet.java
+- src/main/java/org/example/Top20Servlet.java
+- src/main/java/org/example/SearchServlet.java
+- src/main/java/org/example/MovieServlet.java
+- src/main/java/org/example/SingleMovieServlet.java
+- src/main/java/org/example/SingleStarServlet.java
 
----
+- src/main/webapp/META-INF/context.xml
+- src/main/webapp/WEB-INF/web.xml
 
-## Task 4: Password Encryption
-- Implemented encrypted password storage using **Jasypt's StrongPasswordEncryptor**.
-- `customers` and `employees` passwords are encrypted and checked via:
-  ```java
-  encryptor.checkPassword(inputPassword, encryptedPasswordFromDB);
-  ```
-- One-time encryption migration run via `UpdateSecurePassword.java`.
+- #### Explain how Connection Pooling is utilized in the Fabflix code:
+We configured Tomcat to use JDBC Connection Pooling via context.xml using <Resource> with the maxTotal, maxIdle, minIdle, and maxWaitMillis properties. In the servlet classes, we inject the DataSource via @Resource(name="jdbc/moviedb"), then retrieve connections using dataSource.getConnection().
+This avoids repeatedly creating and destroying DB connections, which improves scalability and performance under concurrent load.
 
-- (Taken off due to internal error)
+- #### Explain how Connection Pooling works with two backend SQL:
+We define two separate <Resource> tags in context.xml:
+- One for the master (write + read)
+- One for the slave (read-only)
+Then in the Java servlets, we use logic to determine which data source to connect to based on whether the query is read or write. For example, SearchServlet uses the slave, while AddMovieServlet uses the master.
 
----
+- # Master/Slave
 
-## Task 5: Dashboard (Employee Portal)
+- #### Include the filename/path of all code/configuration files in GitHub of routing queries to Master/Slave SQL:
+- src/main/webapp/META-INF/context.xml
+- src/main/java/org/example/SearchServlet.java
+- src/main/java/org/example/AddMovieServlet.java
+- src/main/java/org/example/MovieDomParser.java
 
-### Employee Login
-- reCAPTCHA + encrypted password verification.
-- Redirects to secure employee dashboard upon login.
-
-### View Metadata
-- Displays all table names with their columns and data types.
-
-### Add Star
-- Inputs:
-  - Name (required)
-  - Birth Year (optional)
-- Generates a unique star ID (e.g., `nm1234567`) using the current max ID.
-
-### Add Movie via Stored Procedure
-- Adds new movies and associates one **star** and one **genre**.
-- Prevents duplicates (same title + year + director).
-- Inserts into:
-  - `movies`
-  - `genres`
-  - `stars`
-  - `stars_in_movies`
-  - `genres_in_movies`
-- Stored procedure defined in `stored-procedure.sql`:
-  - Handles ID generation and conditional insertion.
-
----
-
-## Task 6: XML Parsing and Data Insertion
-
-### Parsed Files
-- `mains243.xml`:
-  - Populates:
-    - `movies`
-    - `genres`
-    - `genres_in_movies`
-- `casts124.xml`:
-  - Populates:
-    - `stars_in_movies`
-  - Cross-references:
-    - `<fid>` from `mains243.xml`
-    - `<a>` (actor name) to existing stars
-
-### Parsing & Insertion
-- Used **Java DOM Parser**.
-- Inserted using `PreparedStatement`.
-- Set encoding to `ISO-8859-1`.
-
-### Error Handling
-- Skipped malformed entries, logged warnings.
-- Treated invalid or missing values as `NULL`.
-- Deduplicated entries (movies, genres, stars_in_movies).
-
-### Performance Optimizations
-- Used batch inserts:
-  ```java
-  pstmt.addBatch();
-  pstmt.executeBatch();
-  ```
-
-
+- #### How read/write requests were routed to Master/Slave SQL?
+- Read requests (e.g., SELECT) are routed to the slave by injecting @Resource(name="jdbc/moviedb-slave").
+- Write requests (e.g., INSERT, UPDATE) are routed to the master via @Resource(name="jdbc/moviedb-master").
+- Each servlet is configured to use the appropriate DataSource based on its operation type. This separation ensures high availability and load distribution across DB servers.
