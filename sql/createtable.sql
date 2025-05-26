@@ -89,3 +89,4 @@ VALUES (NULL, 'A2', 'Test', NULL, '519 E peltason dr.', 'a2@email.com', 'a2');
 
 INSERT INTO employees (email, password, fullname)
 VALUES ('classta@email.edu', 'classta', 'TA CS122B');
+

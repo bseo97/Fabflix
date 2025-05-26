@@ -24,17 +24,17 @@ public class LoginServlet extends HttpServlet {
 
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        // String gRecaptchaResponse = request.getParameter("g-recaptcha-response");
+        String gRecaptchaResponse = request.getParameter("g-recaptcha-response");
 
-        // // ✅ Verify reCAPTCHA
-        // try {
-        //     RecaptchaVerifyUtils.verify(gRecaptchaResponse);
-        // } catch (Exception e) {
-        //     response.sendRedirect(request.getContextPath() + "/login.html?error=Failed+reCAPTCHA+verification");
-        //     return;
-        // }
+        // Verify reCAPTCHA
+        try {
+            RecaptchaVerifyUtils.verify(gRecaptchaResponse);
+        } catch (Exception e) {
+            response.sendRedirect(request.getContextPath() + "/login.html?error=Failed+reCAPTCHA+verification");
+            return;
+        }
 
-        // ✅ Authenticate user
+        // Authenticate user
         try (Connection conn = dataSource.getConnection()) {
             String query = "SELECT password FROM customers WHERE email = ?";
             PreparedStatement statement = conn.prepareStatement(query);

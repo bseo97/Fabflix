@@ -42,7 +42,7 @@ public class SearchServlet extends HttpServlet {
         String sort = request.getParameter("sort");
         String order = request.getParameter("order");
         String limit = request.getParameter("limit");
-        String ac = request.getParameter("ac");
+        String ac = request.getParameter("ac"); // autocomplete flag
 
         List<String> validSort = List.of("title", "rating");
         List<String> validOrder = List.of("asc", "desc");
@@ -77,7 +77,7 @@ public class SearchServlet extends HttpServlet {
                 params.add(genre);
             }
 
-            if (!titleList.isEmpty()) {
+            if (input != null && !input.trim().isEmpty()) {
                 StringBuilder fullTextQuery = new StringBuilder();
                 for (String word : titleList) {
                     if (word.length() >= 1) {
@@ -85,10 +85,20 @@ public class SearchServlet extends HttpServlet {
                         fullTextQuery.append("+").append(word).append("*");
                     }
                 }
-                if (fullTextQuery.length() > 0) {
-                    conditions.add("MATCH(m.title) AGAINST (? IN BOOLEAN MODE)");
+            
+                List<String> subConditions = new ArrayList<>();
+            
+                if (fullTextQuery.length() > 0)
+                    subConditions.add("MATCH(m.title) AGAINST (? IN BOOLEAN MODE)");
+            
+                subConditions.add("m.title LIKE ?");
+            
+                conditions.add("(" + String.join(" OR ", subConditions) + ")");
+            
+                if (fullTextQuery.length() > 0)
                     params.add(fullTextQuery.toString());
-                }
+            
+                params.add("%" + input + "%");
             }
 
             if (startsWith != null && !startsWith.isEmpty()) {
@@ -108,6 +118,7 @@ public class SearchServlet extends HttpServlet {
             query.append("ORDER BY ").append(sortField).append(" ").append(sortOrder).append(" ");
             query.append("LIMIT ?");
 
+
             PreparedStatement statement = conn.prepareStatement(query.toString());
 
             int paramIndex = 1;
@@ -125,14 +136,10 @@ public class SearchServlet extends HttpServlet {
             ResultSet rs = statement.executeQuery();
 
             if ("yes".equals(ac)) {
-                System.out.println("Autocomplete search initiated");
                 JSONArray suggestions = new JSONArray();
-
                 while (rs.next()) {
                     JSONObject suggestion = new JSONObject();
-                    String title = rs.getString("title");
-                    int year = rs.getInt("year");
-                    suggestion.put("value", title + " (" + year + ")");
+                    suggestion.put("value", rs.getString("title") + " (" + rs.getInt("year") + ")");
                     suggestion.put("data", rs.getString("id"));
                     suggestions.put(suggestion);
                 }
@@ -140,13 +147,9 @@ public class SearchServlet extends HttpServlet {
                 JSONObject result = new JSONObject();
                 result.put("query", input);
                 result.put("suggestions", suggestions);
-
-                System.out.println("autocomplete used backend results.");
                 out.write(result.toString());
-                response.setStatus(200);
             } else {
                 JSONArray movies = new JSONArray();
-
                 while (rs.next()) {
                     JSONObject movie = new JSONObject();
                     movie.put("id", rs.getString("id"));
@@ -155,14 +158,13 @@ public class SearchServlet extends HttpServlet {
                     movie.put("director", rs.getString("director"));
                     movie.put("rating", rs.getDouble("rating"));
                     movie.put("stars", rs.getString("stars") == null ? "" : rs.getString("stars"));
-                    movie.put("genres", rs.getString("genres") == null ? "" : rs.getString("genres")); // ✅ Added
+                    movie.put("genres", rs.getString("genres") == null ? "" : rs.getString("genres"));
                     movies.put(movie);
                 }
-
                 out.write(movies.toString());
-                response.setStatus(200);
             }
 
+            response.setStatus(200);
             rs.close();
             statement.close();
 

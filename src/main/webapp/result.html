@@ -3,15 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <title>Movie Results</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Include jQuery and Autocomplete -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.min.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #fafafa;
+            margin: 0;
             padding: 20px;
+            background-color: #f5f5f5;
         }
-        h1 {
+        .header {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+        .nav-links {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            margin-right: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .search-form {
+            display: flex;
+            gap: 0px;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        .search-form input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .search-form button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #007bff;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .search-form button:hover {
+            background-color: #0056b3;
+        }
+        #title-container {
+            position: relative;
+            min-width: 400px;
+        }
+        .autocomplete-suggestions { background: #FFF; overflow: auto; }
+        .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
+        .autocomplete-selected { background: #F0F0F0; }
+        .autocomplete-suggestions strong { font-weight: normal; color: #3399FF; }
+        .autocomplete-group { padding: 2px 5px; }
+        .autocomplete-group strong { display: block; border-bottom: 1px solid #000; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         .controls {
             margin-bottom: 20px;
         }
@@ -32,89 +101,112 @@
             background-color: #4285f4;
             color: white;
         }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .nav-links {
+                justify-content: center;
+            }
+            .search-form {
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Movie Results</h1>
-
-    <div class="controls">
-        <label for="sort">Sort by:</label>
-        <select id="sort">
-            <option value="title">Title</option>
-            <option value="rating">Rating</option>
-        </select>
-
-        <label for="order">Order:</label>
-        <select id="order">
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-        </select>
-
-        <label for="limit">Movies per page:</label>
-        <select id="limit">
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-        </select>
+    <div class="header">
+        <div style="font-size: 24px; font-weight: bold;">Fabflix</div>
+        <div class="nav-links">
+            <a href="main.html">Home</a>
+            <a href="result.html">Results</a>
+            <a href="cart.html">Shopping Cart</a>
+            <a id="login-link" href="login.html">Login</a>
+        </div>
+        <form class="search-form" action="result.html" method="GET">
+            <div id="title-container">
+                <input id="autocomplete" type="text" name="title" placeholder="Title">
+                <div class="autocomplete-suggestions"></div>
+            </div>
+            <button type="submit">Search</button>
+        </form>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Year</th>
-                <th>Director</th>
-                <th>Genres</th>
-                <th>Rating</th>
-                <th>Stars</th>
-            </tr>
-        </thead>
-        <tbody id="movieResults"></tbody>
-    </table>
+    <div class="container">
+        <h1>Movie Results</h1>
+
+        <div class="controls">
+            <label for="sort">Sort by:</label>
+            <select id="sort">
+                <option value="title">Title</option>
+                <option value="rating">Rating</option>
+            </select>
+
+            <label for="order">Order:</label>
+            <select id="order">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+
+            <label for="limit">Movies per page:</label>
+            <select id="limit">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+            </select>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Year</th>
+                    <th>Director</th>
+                    <th>Genres</th>
+                    <th>Rating</th>
+                    <th>Stars</th>
+                </tr>
+            </thead>
+            <tbody id="movieResults"></tbody>
+        </table>
+    </div>
 
     <script>
-        function getParams() {
+        document.addEventListener("DOMContentLoaded", () => {
             const params = new URLSearchParams(window.location.search);
-            return {
-                title: params.get("title") || "",
-                year: params.get("year") || "",
-                director: params.get("director") || "",
-                star: params.get("star") || "",
-                genre: params.get("genre") || "",
-                startsWith: params.get("startsWith") || "",
-                sort: params.get("sort") || "title",
-                order: params.get("order") || "asc",
-                limit: params.get("limit") || "10"
-            };
-        }
+            const sort = document.getElementById("sort");
+            const order = document.getElementById("order");
+            const limit = document.getElementById("limit");
 
-        function updateDropdowns(params) {
-            document.getElementById("sort").value = params.sort;
-            document.getElementById("order").value = params.order;
-            document.getElementById("limit").value = params.limit;
-        }
+            sort.value = params.get("sort") || "title";
+            order.value = params.get("order") || "asc";
+            limit.value = params.get("limit") || "10";
 
-        function fetchAndRender(params) {
-            fetch(`/api/search?${new URLSearchParams(params)}`)
+            function updateAndReload() {
+                params.set("sort", sort.value);
+                params.set("order", order.value);
+                params.set("limit", limit.value);
+                window.location.search = params.toString();
+            }
+
+            sort.addEventListener("change", updateAndReload);
+            order.addEventListener("change", updateAndReload);
+            limit.addEventListener("change", updateAndReload);
+
+            fetch("/api/search?" + params.toString())
                 .then(response => response.json())
                 .then(data => {
                     const movieResults = document.getElementById("movieResults");
                     movieResults.innerHTML = "";
-
                     data.forEach(movie => {
-                        const genres = typeof movie.genres === "string" && movie.genres.trim() !== ""
-                            ? movie.genres
-                            : "N/A";
-
-                        const stars = typeof movie.stars === "string" && movie.stars.trim() !== ""
+                        const genres = movie.genres?.trim() || "N/A";
+                        const stars = movie.stars
                             ? movie.stars.split(",").map(star =>
-                                `<a href="single-star.html?name=${encodeURIComponent(star.trim())}">${star.trim()}</a>`
-                              ).join(", ")
+                                `<a href="single-star.html?name=${encodeURIComponent(star.trim())}">${star.trim()}</a>`).join(", ")
                             : "N/A";
-
-                        const ratingDisplay = movie.rating !== undefined && !isNaN(movie.rating)
-                            ? Number(movie.rating).toFixed(1)
-                            : "N/A";
+                        const rating = movie.rating ? Number(movie.rating).toFixed(1) : "N/A";
 
                         const row = document.createElement("tr");
                         row.innerHTML = `
@@ -122,32 +214,73 @@
                             <td>${movie.year}</td>
                             <td>${movie.director}</td>
                             <td>${genres}</td>
-                            <td>${ratingDisplay}</td>
+                            <td>${rating}</td>
                             <td>${stars}</td>
                         `;
                         movieResults.appendChild(row);
                     });
-                })
-                .catch(error => console.error("Error fetching movie data:", error));
-        }
+                });
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const params = getParams();
-            updateDropdowns(params);
-            fetchAndRender(params);
+            // Autocomplete setup
+            $('#autocomplete').autocomplete({
+                lookup: function(query, doneCallback) {
+                    const normalized = query.trim().toLowerCase().split(/\s+/).sort().join(" ");
+                    const cached = localStorage.getItem(normalized);
+                    if (cached) {
+                        const suggestions = JSON.parse(cached);
+                        doneCallback({ query, suggestions });
+                        return;
+                    }
 
-            document.getElementById("sort").addEventListener("change", e => {
-                params.sort = e.target.value;
-                window.location.search = new URLSearchParams(params).toString();
+                    jQuery.ajax({
+                        method: "GET",
+                        url: "api/search?title=" + encodeURIComponent(query) + "&limit=10&ac=yes",
+                        success: function(data) {
+                            const suggestions = data.suggestions || [];
+                            try { localStorage.setItem(normalized, JSON.stringify(suggestions)); } catch (e) {}
+                            doneCallback({ query, suggestions });
+                        },
+                        error: function() {
+                            doneCallback({ query, suggestions: [] });
+                        }
+                    });
+                },
+                onSelect: function(suggestion) {
+                    window.location.href = `single-movie.html?id=${encodeURIComponent(suggestion.data)}`;
+                },
+                deferRequestBy: 300,
+                zIndex: 9999,
+                minChars: 3
             });
-            document.getElementById("order").addEventListener("change", e => {
-                params.order = e.target.value;
-                window.location.search = new URLSearchParams(params).toString();
-            });
-            document.getElementById("limit").addEventListener("change", e => {
-                params.limit = e.target.value;
-                window.location.search = new URLSearchParams(params).toString();
-            });
+
+            // Session check
+            fetch("api/session-check", { credentials: "include" })
+                .then(res => res.json())
+                .then(data => {
+                    const nav = document.querySelector(".nav-links");
+                    const login = document.getElementById("login-link");
+                    if (login) login.remove();
+
+                    if (data.loggedIn) {
+                        const logout = document.createElement("button");
+                        logout.textContent = "Logout";
+                        logout.onclick = () => {
+                            fetch("api/logout", {
+                                method: "POST",
+                                credentials: "include"
+                            }).then(res => {
+                                window.location.href = res.redirected ? res.url : "login.html";
+                            });
+                        };
+                        nav.appendChild(logout);
+                    } else {
+                        const anchor = document.createElement("a");
+                        anchor.href = "login.html";
+                        anchor.id = "login-link";
+                        anchor.textContent = "Login";
+                        nav.appendChild(anchor);
+                    }
+                });
         });
     </script>
 </body>
