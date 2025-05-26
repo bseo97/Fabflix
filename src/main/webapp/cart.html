@@ -112,7 +112,7 @@
 
     <script>
         function updateCart() {
-            fetch('/api/cart')
+            fetch('/fabflix/api/cart')
                 .then(response => response.json())
                 .then(data => {
                     const cartContent = document.getElementById('cart-content');
@@ -164,7 +164,7 @@
         }
 
         function updateQuantity(movieId, quantity) {
-            fetch('api/cart', {
+            fetch('/fabflix/api/cart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -181,7 +181,7 @@
         }
 
         function removeItem(movieId) {
-            fetch('api/cart', {
+            fetch('/fabflix/api/cart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
