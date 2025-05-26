@@ -101,4 +101,4 @@ unmatched_actors.log
 # Shell scripts or local tools
 *.sh
 
-./vscode/
+.vscode/
