@@ -21,18 +21,20 @@
 - # Connection Pooling
 
 - #### Include the filename/path of all code/configuration files in GitHub of using JDBC Connection Pooling:
-
-- src/main/java/org/example/GenreServlet.java
-- src/main/java/org/example/AddMovieServlet.java
+- src/main/java/org/example/AddMovieServlet.java 
 - src/main/java/org/example/AddStarServlet.java
-- src/main/java/org/example/BrowseServlet.java
-- src/main/java/org/example/MovieListServlet.java
-- src/main/java/org/example/LoginServlet.java
-- src/main/java/org/example/Top20Servlet.java
+- src/main/java/org/example/BrowseServlet.java 
+- src/main/java/org/example/CartServlet.java 
+- src/main/java/org/example/DashboardLoginServlet.java 
+- src/main/java/org/example/GenreServlet.java 
+- src/main/java/org/example/LoginServlet.java 
+- src/main/java/org/example/MovieListServlet.java 
+- src/main/java/org/example/MovieServlet.java 
 - src/main/java/org/example/SearchServlet.java
-- src/main/java/org/example/MovieServlet.java
-- src/main/java/org/example/SingleMovieServlet.java
-- src/main/java/org/example/SingleStarServlet.java
+- src/main/java/org/example/SingleMovieServlet.java 
+- src/main/java/org/example/SingleStarServlet.java 
+- src/main/java/org/example/Top20Servlet.java
+- src/main/java/org/example/MetadataServlet.java 
 
 - src/main/webapp/META-INF/context.xml
 - src/main/webapp/WEB-INF/web.xml
@@ -50,10 +52,21 @@ Then in the Java servlets, we use logic to determine which data source to connec
 - # Master/Slave
 
 - #### Include the filename/path of all code/configuration files in GitHub of routing queries to Master/Slave SQL:
-- src/main/webapp/META-INF/context.xml
+- src/main/java/org/example/AddMovieServlet.java 
+- src/main/java/org/example/AddStarServlet.java
+- src/main/java/org/example/BrowseServlet.java 
+- src/main/java/org/example/CartServlet.java 
+- src/main/java/org/example/DashboardLoginServlet.java 
+- src/main/java/org/example/GenreServlet.java 
+- src/main/java/org/example/LoginServlet.java 
+- src/main/java/org/example/MovieListServlet.java 
+- src/main/java/org/example/MovieServlet.java 
 - src/main/java/org/example/SearchServlet.java
-- src/main/java/org/example/AddMovieServlet.java
-- src/main/java/org/example/MovieDomParser.java
+- src/main/java/org/example/SingleMovieServlet.java 
+- src/main/java/org/example/SingleStarServlet.java 
+- src/main/java/org/example/Top20Servlet.java
+- src/main/java/org/example/MetadataServlet.java 
+
 
 - #### How read/write requests were routed to Master/Slave SQL?
 - Read requests (e.g., SELECT) are routed to the slave by injecting @Resource(name="jdbc/moviedb-slave").
