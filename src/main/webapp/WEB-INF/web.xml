@@ -124,6 +124,14 @@
     </welcome-file-list>
     
     <servlet>
+        <servlet-name>DashboardLoginServlet</servlet-name>
+        <servlet-class>org.example.DashboardLoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DashboardLoginServlet</servlet-name>
+        <url-pattern>/_dashboard/login</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>SessionCheckServlet</servlet-name>
         <servlet-class>org.example.SessionCheckServlet</servlet-class>
     </servlet>
@@ -133,7 +141,16 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SessionCheckServlet</servlet-name>
-        <url-pattern>/fabflix/_dashboard/check-session</url-pattern>
+        <url-pattern>/_dashboard/check-session</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AddStarServlet</servlet-name>
+        <servlet-class>org.example.AddStarServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddStarServlet</servlet-name>
+        <url-pattern>/_dashboard/add-star</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -142,7 +159,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>AddMovieServlet</servlet-name>
-        <url-pattern>/fabflix/_dashboard/add-movie</url-pattern>
+        <url-pattern>/_dashboard/add-movie</url-pattern>
     </servlet-mapping>
 
 </web-app>

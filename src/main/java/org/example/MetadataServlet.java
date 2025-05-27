@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import org.json.JSONObject;
 
-@WebServlet(name = "MetadataServlet", urlPatterns = {"/fabflix/_dashboard/metadata"})
+@WebServlet(name = "MetadataServlet", urlPatterns = {"/_dashboard/metadata"})
 public class MetadataServlet extends HttpServlet {
     
     @Override

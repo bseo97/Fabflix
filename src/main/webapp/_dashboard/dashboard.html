@@ -99,11 +99,6 @@
     <script>
         // Updated base URL to match servlet mappings
         const DASHBOARD_BASE = '/fabflix/_dashboard/';
-        // Check if we're on HTTPS
-        if (window.location.protocol !== 'https:') {
-
-            window.location.href = 'https://' + window.location.hostname + ':8443' + window.location.pathname;
-        }
 
         // Check session on page load
         async function checkSession() {
@@ -111,7 +106,7 @@
             console.log('[DEBUG] Current cookies before check-session:', document.cookie);
 
             // Log the exact URL being requested
-            const checkSessionUrl = '/api/employee-session';
+            const checkSessionUrl = '/fabflix/api/employee-session';
             console.log('[DEBUG] Making request to:', checkSessionUrl);
 
             try {

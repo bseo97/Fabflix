@@ -16,7 +16,7 @@ import java.sql.*;
 import com.google.gson.JsonObject;
 import com.google.gson.Gson;
 
-@WebServlet(name = "AddStarServlet", urlPatterns = "/fabflix/_dashboard/add-star")
+@WebServlet(name = "AddStarServlet", urlPatterns = {"/_dashboard/add-star"})
 public class AddStarServlet extends HttpServlet {
 
     @Resource(name = "jdbc/moviedb")

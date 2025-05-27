@@ -1,3 +1,4 @@
+
 package org.example;
 
 import jakarta.servlet.ServletException;
@@ -15,31 +16,27 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@WebServlet(name = "DashboardLoginServlet", urlPatterns = {"/fabflix/_dashboard/login"})
+@WebServlet(name = "DashboardLoginServlet", urlPatterns = {"/_dashboard/login"})
 public class DashboardLoginServlet extends HttpServlet {
-    
+
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        // Debug logging
+
         System.out.println("\n[DEBUG] DashboardLoginServlet - doPost called");
         System.out.println("[DEBUG] Request URL: " + request.getRequestURL());
         System.out.println("[DEBUG] Context Path: " + request.getContextPath());
         System.out.println("[DEBUG] Servlet Path: " + request.getServletPath());
-        
-        // Always set JSON content type
+
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
-        
-        // Get parameters
+
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String gRecaptchaResponse = request.getParameter("g-recaptcha-response");
-        
+
         System.out.println("[DEBUG] Login attempt with email: " + email);
-        
-        // ✅ Verify reCAPTCHA
+
         try {
             RecaptchaVerifyUtils.verify(gRecaptchaResponse);
         } catch (Exception e) {
@@ -47,7 +44,7 @@ public class DashboardLoginServlet extends HttpServlet {
             out.write("{\"status\":\"error\",\"message\":\"Failed reCAPTCHA verification\"}");
             return;
         }
-        
+
         try (Connection conn = DatabaseConnection.getConnection()) {
             String query = "SELECT password FROM employees WHERE email = ?";
             PreparedStatement statement = conn.prepareStatement(query);
@@ -56,30 +53,27 @@ public class DashboardLoginServlet extends HttpServlet {
 
             if (rs.next()) {
                 String storedPassword = rs.getString("password");
-
-                // Temporary fix: use plain text comparison instead of encryption check
-                // StrongPasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
-                // boolean loginSuccess = passwordEncryptor.checkPassword(password, storedPassword);
                 boolean loginSuccess = password.equals(storedPassword);
 
                 if (loginSuccess) {
                     HttpSession session = request.getSession(true);
                     session.setAttribute("employee", email);
-                    session.setMaxInactiveInterval(30 * 60); // 30 minutes
+                    session.setMaxInactiveInterval(30 * 60);
 
-                    // Set SameSite and Secure attributes for the session cookie
                     Cookie cookie = new Cookie("JSESSIONID", session.getId());
-                    cookie.setPath("/fabflix");  // Important: set path to match application context
+                    cookie.setPath("/fabflix");
                     cookie.setSecure(true);
                     cookie.setHttpOnly(true);
                     response.addCookie(cookie);
 
                     out.write("{\"status\":\"success\",\"message\":\"Login successful\",\"redirect\":\"/fabflix/_dashboard/dashboard.html\"}");
                 } else {
+                    response.setContentType("application/json");
                     out.write("{\"status\":\"error\",\"message\":\"Invalid email or password\"}");
                 }
 
             } else {
+                response.setContentType("application/json");
                 out.write("{\"status\":\"error\",\"message\":\"Invalid email or password\"}");
             }
 
@@ -88,6 +82,7 @@ public class DashboardLoginServlet extends HttpServlet {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            response.setContentType("application/json");
             out.write("{\"status\":\"error\",\"message\":\"Login failed due to server error\"}");
         }
     }
