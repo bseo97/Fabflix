@@ -6,7 +6,7 @@
 - #### Names: Brian Seo, Lucas Kim
 
 - #### Project 4 Video Demo Link:
-link
+[link](https://youtu.be/3QDCMwPkbH4)
 
 - #### Instruction of deployment:
 1. Start both Master and Slave MySQL servers.
@@ -15,8 +15,8 @@ link
 4. Set up HTTPS and verify the app runs on the secure endpoint.
 
 - #### Collaborations and Work Distribution:
-- Brian Seo: JDBC Connection Pooling integration, Master/Slave Replication, MySQL/Tomcat Load Balancing, AutoComplete, and README. 
-- Lucas Kim: Full-text search, testing
+- Brian Seo: JDBC Connection Pooling integration, Master/Slave Replication, MySQL/Tomcat Load Balancing, AutoComplete, Fuzzy Search, and README. 
+- Lucas Kim: Full-text search, autocomplete, testing
 
 - # Connection Pooling
 
@@ -59,3 +59,19 @@ Then in the Java servlets, we use logic to determine which data source to connec
 - Read requests (e.g., SELECT) are routed to the slave by injecting @Resource(name="jdbc/moviedb-slave").
 - Write requests (e.g., INSERT, UPDATE) are routed to the master via @Resource(name="jdbc/moviedb-master").
 - Each servlet is configured to use the appropriate DataSource based on its operation type. This separation ensures high availability and load distribution across DB servers.
+
+- # Fuzzy Search (for extra credit)
+
+**File:**  
+- `src/main/java/org/example/SearchServlet.java`
+
+**Overview:**  
+We implemented fuzzy search using two custom MySQL UDFs from the **Flamingo toolkit**:
+- `edth(str1, str2, threshold)` – returns `TRUE` if edit distance ≤ threshold
+- `edrec(str1, str2)` – returns actual edit distance
+
+These are used to match movie titles even with minor typos. For example, searching for `Termonator` still returns `Terminator`.
+
+**Example Query:**
+```sql
+SELECT title FROM movies WHERE edth(title, ?, 2);
