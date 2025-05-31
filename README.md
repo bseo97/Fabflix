@@ -77,6 +77,7 @@ Then in the Java servlets, we use logic to determine which data source to connec
 
 **File:**  
 - `src/main/java/org/example/SearchServlet.java`
+- You can test it out by searching "Love Story", delete 'o', or re-type into "love strey". Similar to example, you can test it out.
 
 **Overview:**  
 We implemented fuzzy search using two custom MySQL UDFs from the **Flamingo toolkit**:
