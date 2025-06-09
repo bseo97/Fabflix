@@ -16,7 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Top20Servlet extends HttpServlet {
-    @Resource(name = "jdbc/moviedb")
+    @Resource(name = "jdbc/MySQLReadOnly")
     private DataSource dataSource;
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

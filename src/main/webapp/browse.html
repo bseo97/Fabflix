@@ -51,7 +51,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const genresList = document.getElementById('genres');
-            fetch('/fabflix/api/genres')
+            fetch('/api/genres')
                 .then(response => response.json())
                 .then(data => {
                     data.genres.forEach(genre => {
@@ -70,7 +70,7 @@
                 const button = document.createElement('button');
                 button.textContent = letter;
                 button.addEventListener('click', function() {
-                    fetch(`/fabflix/api/browse?initial=${letter}`)
+                    fetch(`/api/browse?initial=${letter}`)
                         .then(response => response.json())
                         .then(data => {
                             const resultsDiv = document.getElementById('results');

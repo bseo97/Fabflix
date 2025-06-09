@@ -36,7 +36,7 @@ public class SingleMovieServlet extends HttpServlet {
 
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
-            DataSource ds = (DataSource) envCtx.lookup("jdbc/moviedb");
+            DataSource ds = (DataSource) envCtx.lookup("jdbc/MySQLReadOnly");
             Connection conn = ds.getConnection();
 
             String query = "SELECT m.id, m.title, m.year, m.director, MAX(r.rating) AS rating, " +

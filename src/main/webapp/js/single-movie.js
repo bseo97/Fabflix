@@ -7,7 +7,7 @@ window.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    fetch(`/fabflix/api/single-movie?id=${encodeURIComponent(movieId)}`)
+    fetch(`/api/single-movie?id=${encodeURIComponent(movieId)}`)
         .then(response => response.json())
         .then(movie => {
             document.getElementById("movie-title").textContent = movie.title;

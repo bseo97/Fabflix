@@ -37,7 +37,7 @@ public class SingleStarServlet extends HttpServlet {
 
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
-            DataSource ds = (DataSource) envCtx.lookup("jdbc/moviedb");
+            DataSource ds = (DataSource) envCtx.lookup("jdbc/MySQLReadOnly");
             Connection conn = ds.getConnection();
 
             // Get star info

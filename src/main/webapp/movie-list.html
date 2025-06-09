@@ -113,7 +113,7 @@
             const limit = limitSelect.value;
             const offset = currentPage * limit;
 
-            fetch(`/fabflix/api/top20?sortBy=${sortBy}&order=${order}&limit=${limit}&offset=${offset}`)
+            fetch(`/api/top20?sortBy=${sortBy}&order=${order}&limit=${limit}&offset=${offset}`)
                 .then(response => response.json())
                 .then(data => {
                     movieTable.innerHTML = '';

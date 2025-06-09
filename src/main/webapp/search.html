@@ -11,7 +11,7 @@
         <h1>Search Movies</h1>
     </header>
     <main>
-        <form class="search-form" action="/fabflix/result.html" method="GET">
+        <form class="search-form" action="/result.html" method="GET">
             <input type="text" name="title" placeholder="Title">
             <input type="text" name="year" placeholder="Year">
             <input type="text" name="director" placeholder="Director">
@@ -29,7 +29,7 @@
             event.preventDefault(); // Prevent form from submitting the traditional way
             const formData = new FormData(this);
 
-            fetch('/fabflix/api/search', {
+            fetch('/api/search', {
                 method: 'POST',
                 body: formData,
                 credentials: 'include' // Include session cookies if needed

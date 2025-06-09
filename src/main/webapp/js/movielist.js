@@ -2,7 +2,7 @@
 // File: src/main/webapp/js/movielist.js
 
 window.addEventListener("DOMContentLoaded", () => {
-    fetch("/fabflix/api/movielist")
+    fetch("/api/movielist")
         .then(response => response.json())
         .then(data => populateTable(data))
         .catch(error => console.error("Error fetching movie data:", error));

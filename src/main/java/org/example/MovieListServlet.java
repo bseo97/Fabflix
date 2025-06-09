@@ -20,15 +20,20 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "MovieListServlet", urlPatterns = {"/api/top20"})
 public class MovieListServlet extends HttpServlet {
-    @Resource(name = "jdbc/moviedb")
+    @Resource(name = "jdbc/MySQLReadOnly")
     private DataSource dataSource;
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
-        if (request.getSession().getAttribute("user") == null) {
-            response.sendRedirect("/login.html");
+        String jwtToken = org.common.JwtUtil.getCookieValue(request, "jwtToken");
+        io.jsonwebtoken.Claims claims = org.common.JwtUtil.validateToken(jwtToken);
+        
+        if (claims == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Unauthorized. Please login.\"}");
             return;
         }
         System.out.println("🟡 DEBUG: Entering MovieListServlet");

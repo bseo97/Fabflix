@@ -22,7 +22,7 @@ import com.google.gson.Gson;
 @WebServlet(name = "AddMovieServlet", urlPatterns = {"/_dashboard/add-movie"})
 public class AddMovieServlet extends HttpServlet {
 
-    @Resource(name = "jdbc/moviedb")
+    @Resource(name = "jdbc/MySQLReadWrite")
     private DataSource dataSource;
 
     @Override

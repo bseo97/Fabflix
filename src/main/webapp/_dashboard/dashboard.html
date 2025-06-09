@@ -98,7 +98,7 @@
 
     <script>
         // Updated base URL to match servlet mappings
-        const DASHBOARD_BASE = '/fabflix/_dashboard/';
+        const DASHBOARD_BASE = '/_dashboard/';
 
         // Check session on page load
         async function checkSession() {
@@ -106,7 +106,7 @@
             console.log('[DEBUG] Current cookies before check-session:', document.cookie);
 
             // Log the exact URL being requested
-            const checkSessionUrl = '/fabflix/api/employee-session';
+            const checkSessionUrl = '/api/employee-session';
             console.log('[DEBUG] Making request to:', checkSessionUrl);
 
             try {

@@ -163,17 +163,13 @@
             <a href="cart.html">Shopping Cart</a>
             <a id="login-link" href="login.html">Login</a>
         </div>
-        <form class="search-form" action="/fabflix/result.html" method="GET">
+        <form class="search-form" action="/result.html" method="GET">
             <div id="title-container">
                 <input id="autocomplete" type="text" name="title" placeholder="Title">
                 <div class="autocomplete-suggestions">
                 </div>
             </div>
 
-            <!-- here -->
-            <!-- <input type="text" name="year" placeholder="Year">
-            <input type="text" name="director" placeholder="Director">
-            <input type="text" name="star" placeholder="Star"> -->
             <button type="submit">Search</button>
         </form>
     </div>
@@ -247,7 +243,7 @@
             <h2>Browse by Genre</h2>
             <div class="genres-grid" id="genreGrid"></div>
             <script>
-                fetch("/fabflix/api/genres", { credentials: "include" })
+                fetch("/api/genres", { credentials: "include" })
                     .then(response => response.json())
                     .then(genres => {
                         const container = document.getElementById("genreGrid");
@@ -269,7 +265,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Session check & dynamic logout button
-            fetch("/fabflix/api/session-check", {
+            fetch("/api/session-check", {
                 credentials: "include"
             })
             .then(response => response.json())
@@ -282,7 +278,7 @@
                     const button = document.createElement("button");
                     button.textContent = "Logout";
                     button.onclick = function () {
-                        fetch("/fabflix/api/logout", {
+                        fetch("/api/logout", {
                             method: "POST",
                             credentials: "include"
                         }).then(res => {
@@ -298,7 +294,7 @@
                     nav.appendChild(button);
     
                     // Fetch top 20 movies only if logged in
-                    fetch("/fabflix/api/top20-rated", {
+                    fetch("/api/top20-rated", {
                         credentials: "include"
                     })
                     .then(response => response.json())

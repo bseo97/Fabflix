@@ -26,15 +26,20 @@ public class MovieServlet extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
-        if (request.getSession().getAttribute("user") == null) {
-            response.sendRedirect("/login.html");
+        String jwtToken = org.common.JwtUtil.getCookieValue(request, "jwtToken");
+        io.jsonwebtoken.Claims claims = org.common.JwtUtil.validateToken(jwtToken);
+        
+        if (claims == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Unauthorized. Please login.\"}");
             return;
         }
 
         try {
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
-            DataSource ds = (DataSource) envCtx.lookup("jdbc/moviedb");
+            DataSource ds = (DataSource) envCtx.lookup("jdbc/MySQLReadOnly");
             Connection conn = ds.getConnection();
 
             String query = "SELECT m.id, m.title, m.year, m.director, r.rating, " +

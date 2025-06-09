@@ -19,7 +19,7 @@ import org.json.JSONObject;
 
 public class BrowseServlet extends HttpServlet {
 
-    @Resource(name = "jdbc/moviedb")
+    @Resource(name = "jdbc/MySQLReadOnly")
     private DataSource dataSource;
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
