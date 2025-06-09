@@ -129,7 +129,7 @@
         <url-pattern>/api/session-check</url-pattern>
     </servlet-mapping>
 
-    <servlet>
+    <!-- <servlet>
         <servlet-name>AddStarServlet</servlet-name>
         <servlet-class>org.example.AddStarServlet</servlet-class>
     </servlet>
@@ -145,6 +145,6 @@
     <servlet-mapping>
         <servlet-name>AddMovieServlet</servlet-name>
         <url-pattern>/_dashboard/add-movie</url-pattern>
-    </servlet-mapping>
+    </servlet-mapping> -->
 
 </web-app>

@@ -155,13 +155,5 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>movies</id>
-            <properties>
-                <endpointDir>src/movies</endpointDir>
-                <excludes>**/login.html</excludes>
-            </properties>
-        </profile>
-    </profiles>
+
 </project>
