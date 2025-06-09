@@ -114,6 +114,18 @@
                 justify-content: center;
             }
         }
+
+        .add-to-cart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -163,10 +175,11 @@
                 <tr>
                     <th>Title</th>
                     <th>Year</th>
-                    <th>Director</th>
-                    <th>Genres</th>
+                    <th>Genre</th>
                     <th>Rating</th>
+                    <th>Director</th>
                     <th>Stars</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody id="movieResults"></tbody>
@@ -174,7 +187,30 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        // Move addToCart function outside document.ready
+        function addToCart(movieId) {
+            fetch('/fabflix/api/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `movieId=${movieId}&action=add`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Movie added to cart!');
+                } else {
+                    alert(data.message || 'Error adding to cart');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding to cart');
+            });
+        }
+
+        $(document).ready(function() {
             const params = new URLSearchParams(window.location.search);
             const sort = document.getElementById("sort");
             const order = document.getElementById("order");
@@ -212,10 +248,11 @@
                         row.innerHTML = `
                             <td><a href="single-movie.html?id=${encodeURIComponent(movie.id)}">${movie.title}</a></td>
                             <td>${movie.year}</td>
-                            <td>${movie.director}</td>
                             <td>${genres}</td>
                             <td>${rating}</td>
+                            <td>${movie.director}</td>
                             <td>${stars}</td>
+                            <td><button onclick="addToCart('${movie.id}')" class="add-to-cart-btn">Add to Cart</button></td>
                         `;
                         movieResults.appendChild(row);
                     });
@@ -283,6 +320,24 @@
                         nav.appendChild(anchor);
                     }
                 });
+
+            function displayMovies(movies) {
+                const tableBody = document.getElementById("movieTableBody");
+                tableBody.innerHTML = "";
+                movies.forEach(movie => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><a href="single-movie.html?id=${movie.id}">${movie.title}</a></td>
+                        <td>${movie.year}</td>
+                        <td>${movie.genres || 'N/A'}</td>
+                        <td>${movie.rating || 'N/A'}</td>
+                        <td>${movie.director || 'N/A'}</td>
+                        <td>${movie.stars || 'N/A'}</td>
+                        <td><button onclick="addToCart('${movie.id}')" class="add-to-cart-btn">Add to Cart</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
         });
     </script>
 </body>

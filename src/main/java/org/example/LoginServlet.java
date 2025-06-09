@@ -36,7 +36,7 @@ public class LoginServlet extends HttpServlet {
 
         // Authenticate user
         try (Connection conn = dataSource.getConnection()) {
-            String query = "SELECT password FROM customers WHERE email = ?";
+            String query = "SELECT id, password FROM customers WHERE email = ?";
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, email);
             ResultSet rs = statement.executeQuery();
@@ -47,6 +47,7 @@ public class LoginServlet extends HttpServlet {
                 if (storedPassword != null && storedPassword.equals(password)) {
                     HttpSession session = request.getSession();
                     session.setAttribute("user", email);
+                    session.setAttribute("customerId", rs.getInt("id"));
                     response.sendRedirect(request.getContextPath() + "/main.html");
                 } else {
                     response.sendRedirect(request.getContextPath() + "/login.html?error=Invalid+username+or+password");

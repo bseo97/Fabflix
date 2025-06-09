@@ -43,17 +43,85 @@
         a:hover {
             text-decoration: underline;
         }
+
+        .add-to-cart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
 <h1 id="movie-title">Loading...</h1>
 <div id="movie-details">
-    <p><strong>Year:</strong> <span id="movie-year">-</span></p>
-    <p><strong>Director:</strong> <span id="movie-director">-</span></p>
-    <p><strong>Genres:</strong> <span id="movie-genres">-</span></p>
-    <p><strong>Stars:</strong> <span id="movie-stars">-</span></p>
-    <p><strong>Rating:</strong> <span id="movie-rating">-</span></p>
+    <div class="movie-details">
+        <h2 id="movie-title"></h2>
+        <div class="movie-info">
+            <p><strong>Year:</strong> <span id="movie-year"></span></p>
+            <p><strong>Director:</strong> <span id="movie-director"></span></p>
+            <p><strong>Genres:</strong> <span id="movie-genres"></span></p>
+            <p><strong>Rating:</strong> <span id="movie-rating"></span></p>
+            <p><strong>Stars:</strong> <span id="movie-stars"></span></p>
+            <button id="addToCartBtn" class="add-to-cart-btn">Add to Cart</button>
+        </div>
+    </div>
 </div>
 <p><a href="main.html">← Back to Main</a></p>
+
+<script>
+    function addToCart(movieId) {
+        fetch('/fabflix/api/cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `movieId=${movieId}&action=add`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Movie added to cart!');
+            } else {
+                alert(data.message || 'Error adding to cart');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding to cart');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const movieId = urlParams.get('id');
+        
+        if (movieId) {
+            fetch(`/fabflix/api/single-movie?id=${movieId}`)
+                .then(response => response.json())
+                .then(movie => {
+                    document.getElementById('movie-title').textContent = movie.title;
+                    document.getElementById('movie-year').textContent = movie.year;
+                    document.getElementById('movie-director').textContent = movie.director;
+                    document.getElementById('movie-genres').textContent = movie.genres;
+                    document.getElementById('movie-rating').textContent = movie.rating;
+                    document.getElementById('movie-stars').textContent = movie.stars;
+                    
+                    document.getElementById('addToCartBtn').onclick = () => addToCart(movieId);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading movie details');
+                });
+        }
+    });
+</script>
 </body>
 </html>
