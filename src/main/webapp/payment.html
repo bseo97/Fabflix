@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Fabflix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .nav-links {
+            margin-top: 10px;
+        }
+        .nav-links a {
+            margin-right: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .error {
+            color: #dc3545;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+        .cart-summary {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .total {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Fabflix</h1>
+        <div class="nav-links">
+            <a href="main.html">Home</a>
+            <a href="main.html#search">Search Movies</a>
+            <a href="main.html#browse">Browse Movies</a>
+            <a href="cart.html">Shopping Cart</a>
+            <a id="login-link" href="login.html">Login</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h2>Payment Information</h2>
+            <div class="cart-summary">
+                <h3>Order Summary</h3>
+                <div id="cart-items">
+                    <!-- Cart items will be loaded here -->
+                </div>
+                <div id="cart-total" class="total">
+                    <!-- Total will be calculated here -->
+                </div>
+            </div>
+            
+            <form id="payment-form" onsubmit="return placeOrder(event)">
+                <div id="general-error" class="error" style="display:none;"></div>
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                    <div class="error" id="firstName-error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                    <div class="error" id="lastName-error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="creditCard">Credit Card Number</label>
+                    <input type="text" id="creditCard" name="creditCard" required>
+                    <div class="error" id="creditCard-error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="expiration">Expiration Date (YYYY-MM-DD)</label>
+                    <input type="text" id="expiration" name="expiration" required pattern="\d{4}-\d{2}-\d{2}" placeholder="e.g. 2000-12-31">
+                    <div class="error" id="expiration-error"></div>
+                </div>
+                
+                <button type="submit" class="submit-btn">Place Order</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function loadCartSummary() {
+            fetch('/fabflix/api/cart')
+                .then(response => response.json())
+                .then(data => {
+                    const cartItems = document.getElementById('cart-items');
+                    const cartTotal = document.getElementById('cart-total');
+                    
+                    if (data.length === 0 || (data.length === 1 && data[0].error)) {
+                        window.location.href = 'cart.html';
+                        return;
+                    }
+
+                    let total = 0;
+                    let html = '<ul>';
+                    
+                    data.forEach(item => {
+                        const subtotal = item.price * item.quantity;
+                        total += subtotal;
+                        html += `
+                            <li>${item.title} x ${item.quantity} - $${subtotal.toFixed(2)}</li>
+                        `;
+                    });
+                    
+                    html += '</ul>';
+                    cartItems.innerHTML = html;
+                    cartTotal.innerHTML = `Total: $${total.toFixed(2)}`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading cart summary');
+                });
+        }
+
+        function placeOrder(event) {
+            event.preventDefault();
+            // Clear all previous errors
+            document.getElementById('general-error').style.display = 'none';
+            document.getElementById('general-error').textContent = '';
+            ['firstName','lastName','creditCard','expiration'].forEach(function(field) {
+                var el = document.getElementById(field+'-error');
+                if (el) { el.textContent = ''; el.style.display = 'none'; }
+            });
+            
+            const formData = new FormData(event.target);
+            const orderData = {
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                creditCard: formData.get('creditCard'),
+                expiration: formData.get('expiration')
+            };
+
+            fetch('/fabflix/api/place-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = 'confirmation.html?orderId=' + data.orderId;
+                } else {
+                    // Show error messages
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            const errorElement = document.getElementById(field + '-error');
+                            if (errorElement) {
+                                errorElement.textContent = data.errors[field];
+                                errorElement.style.display = 'block';
+                            }
+                        });
+                    }
+                    if (data.message) {
+                        const generalError = document.getElementById('general-error');
+                        generalError.textContent = data.message;
+                        generalError.style.display = 'block';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error placing order');
+            });
+
+            return false;
+        }
+
+        // Load cart summary when page loads
+        document.addEventListener('DOMContentLoaded', loadCartSummary);
+
+        // Session check & dynamic logout button
+        fetch("/fabflix/api/session-check", {
+            credentials: "include"
+        })
+        .then(response => response.json())
+        .then(data => {
+            const nav = document.querySelector(".nav-links");
+            const loginLink = document.getElementById("login-link");
+            if (loginLink) loginLink.remove();
+            if (data.loggedIn) {
+                const button = document.createElement("button");
+                button.textContent = "Logout";
+                button.onclick = function () {
+                    fetch("/fabflix/api/logout", {
+                        method: "POST",
+                        credentials: "include"
+                    }).then(res => {
+                        if (res.redirected) {
+                            window.location.href = res.url;
+                        } else {
+                            window.location.href = "login.html";
+                        }
+                    }).catch(err => {
+                        console.error("Logout failed:", err);
+                    });
+                };
+                nav.appendChild(button);
+            } else {
+                const loginAnchor = document.createElement("a");
+                loginAnchor.href = "login.html";
+                loginAnchor.textContent = "Login";
+                loginAnchor.id = "login-link";
+                nav.appendChild(loginAnchor);
+            }
+        });
+    </script>
+</body>
+</html> 

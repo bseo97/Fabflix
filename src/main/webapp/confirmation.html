@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Fabflix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .nav-links {
+            margin-top: 10px;
+        }
+        .nav-links a {
+            margin-right: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .success-icon {
+            color: #28a745;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .order-id {
+            font-size: 1.2em;
+            color: #007bff;
+            margin: 20px 0;
+        }
+        .home-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .home-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Fabflix</h1>
+        <div class="nav-links">
+            <a href="main.html">Home</a>
+            <a href="main.html#search">Search Movies</a>
+            <a href="main.html#browse">Browse Movies</a>
+            <a href="cart.html">Shopping Cart</a>
+            <a id="login-link" href="login.html">Login</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <div class="success-icon">✓</div>
+            <h2>Order Confirmed!</h2>
+            <p>Thank you for your purchase.</p>
+            <div class="order-id">
+                Order ID: <span id="orderId"></span>
+            </div>
+            <p>Your order has been successfully placed and will be processed shortly.</p>
+            <a href="main.html" class="home-btn">Return to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Get order ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+        if (orderId) {
+            document.getElementById('orderId').textContent = orderId;
+        }
+
+        // Session check & dynamic logout button
+        fetch("/fabflix/api/session-check", {
+            credentials: "include"
+        })
+        .then(response => response.json())
+        .then(data => {
+            const nav = document.querySelector(".nav-links");
+            const loginLink = document.getElementById("login-link");
+            if (loginLink) loginLink.remove();
+            if (data.loggedIn) {
+                const button = document.createElement("button");
+                button.textContent = "Logout";
+                button.onclick = function () {
+                    fetch("/fabflix/api/logout", {
+                        method: "POST",
+                        credentials: "include"
+                    }).then(res => {
+                        if (res.redirected) {
+                            window.location.href = res.url;
+                        } else {
+                            window.location.href = "login.html";
+                        }
+                    }).catch(err => {
+                        console.error("Logout failed:", err);
+                    });
+                };
+                nav.appendChild(button);
+            } else {
+                const loginAnchor = document.createElement("a");
+                loginAnchor.href = "login.html";
+                loginAnchor.textContent = "Login";
+                loginAnchor.id = "login-link";
+                nav.appendChild(loginAnchor);
+            }
+        });
+    </script>
+</body>
+</html> 

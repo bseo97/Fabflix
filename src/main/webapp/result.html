@@ -114,6 +114,18 @@
                 justify-content: center;
             }
         }
+
+        .add-to-cart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -212,10 +224,11 @@
                         row.innerHTML = `
                             <td><a href="single-movie.html?id=${encodeURIComponent(movie.id)}">${movie.title}</a></td>
                             <td>${movie.year}</td>
-                            <td>${movie.director}</td>
                             <td>${genres}</td>
                             <td>${rating}</td>
+                            <td>${movie.director}</td>
                             <td>${stars}</td>
+                            <td><button onclick="addToCart('${movie.id}')" class="add-to-cart-btn">Add to Cart</button></td>
                         `;
                         movieResults.appendChild(row);
                     });

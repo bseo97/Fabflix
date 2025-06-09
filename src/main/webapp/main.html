@@ -148,6 +148,17 @@
                 justify-content: center;
             }
         }
+        .add-to-cart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #218838;
+        }
     </style>
     <!-- include jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -190,6 +201,7 @@
                         <th>Rating</th>
                         <th>Director</th>
                         <th>Stars</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="movieTableBody">
@@ -315,6 +327,7 @@
                                 <td>${movie.rating}</td>
                                 <td>${movie.director}</td>
                                 <td>${stars}</td>
+                                <td><button onclick="addToCart('${movie.id}')" class="add-to-cart-btn">Add to Cart</button></td>
                             `;
                             tableBody.appendChild(row);
                         });
@@ -392,6 +405,28 @@
             zIndex: 9999,
             minChars: 3
         });
+        
+        function addToCart(movieId) {
+            fetch('/fabflix/api/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `movieId=${movieId}&action=add`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Movie added to cart!');
+                } else {
+                    alert(data.message || 'Error adding to cart');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding to cart');
+            });
+        }
     </script>
 </body>
 </html>
