@@ -1,91 +1,108 @@
+# Fabflix Project 5 - Scalable Deployment with Docker and Kubernetes
 
-# Fabflix Project 4 - Scaled Web App with Connection Pooling and Master/Slave
+## General
 
-- # General
+#### Names: Brian Seo, Lucas Kim
 
-- #### Names: Brian Seo, Lucas Kim
+#### Project 5 Video Demo Link:
+https://youtu.be/z5wcuFpePEw
 
-- #### Project 4 Video Demo Link:
-[link](https://youtu.be/3QDCMwPkbH4)
+#### Instruction of Deployment:
+1. Set up a Kubernetes cluster on AWS using kOps with 1 control-plane and 3 worker nodes.
+2. Deploy a single MySQL server to handle both master and slave configurations.
+3. Monolithic version: Use `kubectl apply -f fabflix.yaml` and `kubectl apply -f ingress.yaml` to deploy the Fabflix application.
+4. Access the Fabflix site using the AWS ELB URL.
+5. For multi-service architecture, stop the original deployment using `kubectl scale`, then apply `fabflix-multi.yaml` and `ingress-multi.yaml`.
 
-- #### Instruction of deployment:
-1. Start both Master and Slave MySQL servers.
-2. Ensure context.xml is configured with connection URLs to both databases with connection pooling.
-3. Deploy the .war file to Tomcat 10.1+ using EC2 instances.
-4. Set up HTTPS and verify the app runs on the secure endpoint.
+#### Collaborations and Work Distribution:
+- **Brian Seo**: Kubernetes ingress configuration, JWT-based session architecture, MySQL read-write splitting, cart and order processing, Docker image publishing, cluster debugging, full-stack integration, and final video demo.
+- **Lucas Kim**: Docker setup, static asset routing, test deployment pipeline, pod logging validation.
 
-- #### Collaborations and Work Distribution:
-- Brian Seo: JDBC Connection Pooling integration, Master/Slave Replication, MySQL/Tomcat Load Balancing, AutoComplete, Fuzzy Search, and README. 
-- Lucas Kim: Full-text search, autocomplete, testing
+---
 
-- # Connection Pooling
+## Task 1: Run the Fabflix application in a Docker container
 
-- #### Include the filename/path of all code/configuration files in GitHub of using JDBC Connection Pooling:
-- src/main/java/org/example/AddMovieServlet.java 
-- src/main/java/org/example/AddStarServlet.java
-- src/main/java/org/example/BrowseServlet.java 
-- src/main/java/org/example/CartServlet.java 
-- src/main/java/org/example/DashboardLoginServlet.java 
-- src/main/java/org/example/GenreServlet.java 
-- src/main/java/org/example/LoginServlet.java 
-- src/main/java/org/example/MovieListServlet.java 
-- src/main/java/org/example/MovieServlet.java 
-- src/main/java/org/example/SearchServlet.java
-- src/main/java/org/example/SingleMovieServlet.java 
-- src/main/java/org/example/SingleStarServlet.java 
-- src/main/java/org/example/Top20Servlet.java
-- src/main/java/org/example/MetadataServlet.java 
+- Followed Murphy Movies "Docker" branch to build and verify Fabflix as a Docker image.
+- Created two images:
+  - `fabflix-login`: handles user authentication and session
+  - `fabflix-movies`: handles browsing, search, cart, checkout
+- Docker images pushed to Docker Hub:  
+  - `bseo97/fabflix-login:v3`  
+  - `bseo97/fabflix-movies:v3`  
 
-- src/main/webapp/META-INF/context.xml
-- src/main/webapp/WEB-INF/web.xml
+---
 
-- #### Explain how Connection Pooling is utilized in the Fabflix code:
-We configured Tomcat to use JDBC Connection Pooling via context.xml using <Resource> with the maxTotal, maxIdle, minIdle, and maxWaitMillis properties. In the servlet classes, we inject the DataSource via @Resource(name="jdbc/moviedb"), then retrieve connections using dataSource.getConnection().
-This avoids repeatedly creating and destroying DB connections, which improves scalability and performance under concurrent load.
+## Task 2: Set up a Kubernetes (K8s) cluster on AWS
 
-- #### Explain how Connection Pooling works with two backend SQL:
-We define two separate <Resource> tags in context.xml:
-- One for the master (write + read)
-- One for the slave (read-only)
-Then in the Java servlets, we use logic to determine which data source to connect to based on whether the query is read or write. For example, SearchServlet uses the slave, while AddMovieServlet uses the master.
+- Created Kubernetes cluster on AWS using `kOps`.
+- Cluster consisted of 1 control-plane and 3 worker nodes.
+- Verified cluster status using `kops get all` and `kubectl get nodes`.
 
-- # Master/Slave
+---
 
-- #### Include the filename/path of all code/configuration files in GitHub of routing queries to Master/Slave SQL:
-- src/main/java/org/example/AddMovieServlet.java 
-- src/main/java/org/example/AddStarServlet.java
-- src/main/java/org/example/BrowseServlet.java 
-- src/main/java/org/example/CartServlet.java 
-- src/main/java/org/example/DashboardLoginServlet.java 
-- src/main/java/org/example/GenreServlet.java 
-- src/main/java/org/example/LoginServlet.java 
-- src/main/java/org/example/MovieListServlet.java 
-- src/main/java/org/example/MovieServlet.java 
-- src/main/java/org/example/SearchServlet.java
-- src/main/java/org/example/SingleMovieServlet.java 
-- src/main/java/org/example/SingleStarServlet.java 
-- src/main/java/org/example/Top20Servlet.java
-- src/main/java/org/example/MetadataServlet.java 
+## Task 3: Deploy Fabflix to the K8s cluster
+
+- Wrote `fabflix.yaml` and `ingress.yaml` to deploy Fabflix application.
+- Moved MySQL database into the cluster using StatefulSet (MySQL master + slave).
+- Verified:
+  - Functional login
+  - Movie browsing and search
+  - Cart and order placement
+- Confirmed sales data was inserted into MySQL by querying the database from within a pod.
+
+---
+
+## Task 4: Revise Fabflix using a multi-service architecture
+
+- Split the Fabflix app into two services:
+  - `/api/login`, `/api/logout`, `/api/session-check` → `fabflix-login`
+  - All other `/api/...` and static files → `fabflix-movies`
+- Used Maven multi-profile system to compile separate `.war` files.
+- Wrote `fabflix-multi.yaml` and `ingress-multi.yaml`:
+  - Set Ingress rules to route requests to the appropriate service
+  - Configured session stickiness using cookies
+- Verified:
+  - JWT cookie is issued and stored on login
+  - Requests to `/api/login` are handled by login pod
+  - Other endpoints (search, browse, cart, place order) handled by movie pods
+  - Logs confirm correct routing per service
+
+---
+
+## Files Included in the Monolithic Directory
+
+- `Dockerfile`
+- `fabflix.yaml`
+- `ingress.yaml`
+- `pom.xml`
+
+## Files Included in the multi-service Directories
+
+- `Dockerfile`
+- `fabflix-multi.yaml`    I have put the multi.yaml only on fabflix-movies directory to avoid confusion
+- `ingress-multi.yaml`
+- `pom.xml`
 
 
-- #### How read/write requests were routed to Master/Slave SQL?
-- Read requests (e.g., SELECT) are routed to the slave by injecting @Resource(name="jdbc/moviedb-slave").
-- Write requests (e.g., INSERT, UPDATE) are routed to the master via @Resource(name="jdbc/moviedb-master").
-- Each servlet is configured to use the appropriate DataSource based on its operation type. This separation ensures high availability and load distribution across DB servers.
+---
 
-- # Fuzzy Search (for extra credit)
+## Demo Checklist (Video Demonstration Includes):
 
-**File:**  
-- `src/main/java/org/example/SearchServlet.java`
-- You can test it out by searching "Love Story", delete 'o', or re-type into "love strey". Similar to example, you can test it out.
+- AWS EC2 cluster setup shown (control + worker nodes)
+- Docker Hub with both images verified
+- `kops get all` and `kubectl get all` executed
+- Application tested end-to-end:
+  - User login
+  - Movie search and add to cart
+  - Checkout and DB insertion confirmed via `kubectl exec mysql-secondary-0`
+- JWT verified in browser cookies
+- Multi-service routing confirmed by analyzing pod logs
 
-**Overview:**  
-We implemented fuzzy search using two custom MySQL UDFs from the **Flamingo toolkit**:
-- `edth(str1, str2, threshold)` – returns `TRUE` if edit distance ≤ threshold
-- `edrec(str1, str2)` – returns actual edit distance
+---
 
-These are used to match movie titles even with minor typos. For example, searching for `Termonator` still returns `Terminator`.
+## Notes
 
-**Example Query:**
-```sql
-SELECT title FROM movies WHERE edth(title, ?, 2);
+- ELB URL from Ingress remains consistent between single-service and multi-service deployments.
+- Cluster and resources were removed after demo to prevent charges.
+- HTTPS and reCAPTCHA were considered optional and were not included.
+
