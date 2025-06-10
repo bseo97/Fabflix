@@ -1,0 +1,86 @@
+# --- fabflix-login Deployment ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fabflix-login
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fabflix-login
+  template:
+    metadata:
+      labels:
+        app: fabflix-login
+    spec:
+      containers:
+        - name: fabflix-login-container
+          image: bseo97/fabflix-login:v3
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      imagePullSecrets:
+        - name: regcred
+
+---
+# --- fabflix-login Service ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fabflix-login-service
+spec:
+  selector:
+    app: fabflix-login
+  ports:
+    - name: http
+      port: 8080
+  type: ClusterIP
+
+---
+# --- fabflix-movies Deployment ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fabflix-movies
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fabflix-movies
+  template:
+    metadata:
+      labels:
+        app: fabflix-movies
+    spec:
+      containers:
+        - name: fabflix-movies-container
+          image: bseo97/fabflix-movies:v3
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      imagePullSecrets:
+        - name: regcred
+
+---
+# --- fabflix-movies Service ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fabflix-movies-service
+spec:
+  selector:
+    app: fabflix-movies
+  ports:
+    - name: http
+      port: 8080
+  type: ClusterIP
