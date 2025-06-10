@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>fabflix</artifactId>
+    <artifactId>fabflix-login</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>CS122B Project 4</name>
+    <name>Fabflix Login Service</name>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -70,6 +70,25 @@
             <version>2.10.1</version>
         </dependency>
 
+            <!-- ✅ JSON Web Token (JJWT) -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>0.11.5</version>
+    </dependency>
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
+
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
@@ -78,7 +97,7 @@
     </dependencies>
 
     <build>
-        <finalName>fabflix</finalName>
+        <finalName>fabflix-login</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -88,12 +107,12 @@
                     <target>11</target>
                 </configuration>
             </plugin>
-            <plugin>
+            <!-- <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>org.example.MovieDomParser</mainClass> <!-- Change to JDBC2 when needed -->
+                    <mainClass>org.example.MovieDomParser</mainClass>
                     <includeProjectDependencies>true</includeProjectDependencies>
                     <includePluginDependencies>false</includePluginDependencies>
                     <classpathScope>compile</classpathScope>
@@ -110,7 +129,7 @@
                     <username>admin</username>
                     <password>password</password>
                 </configuration>
-            </plugin>
+            </plugin> -->
             <!-- WAR plugin to package the app -->
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
@@ -122,4 +141,13 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>login</id>
+            <properties>
+                <endpointDir>src/login</endpointDir>
+                <excludes>**/main.html, **/result.html, **/search.html, **/index.html, **/movie-list.html, **/single-movie.html, **/single-star.html</excludes>
+            </properties>
+        </profile>
+    </profiles>
 </project>

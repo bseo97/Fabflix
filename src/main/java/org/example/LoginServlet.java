@@ -6,16 +6,18 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import org.common.JwtUtil;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/api/login"})
 public class LoginServlet extends HttpServlet {
 
-    @Resource(name = "jdbc/moviedb")
+    @Resource(name = "jdbc/MySQLReadWrite")
     private DataSource dataSource;
 
     @Override
@@ -24,19 +26,12 @@ public class LoginServlet extends HttpServlet {
 
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String gRecaptchaResponse = request.getParameter("g-recaptcha-response");
 
-        // Verify reCAPTCHA
-        try {
-            RecaptchaVerifyUtils.verify(gRecaptchaResponse);
-        } catch (Exception e) {
-            response.sendRedirect(request.getContextPath() + "/login.html?error=Failed+reCAPTCHA+verification");
-            return;
-        }
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
 
-        // Authenticate user
         try (Connection conn = dataSource.getConnection()) {
-            String query = "SELECT password FROM customers WHERE email = ?";
+            String query = "SELECT id, password, firstName, lastName FROM customers WHERE email = ?";
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, email);
             ResultSet rs = statement.executeQuery();
@@ -45,22 +40,31 @@ public class LoginServlet extends HttpServlet {
                 String storedPassword = rs.getString("password");
 
                 if (storedPassword != null && storedPassword.equals(password)) {
-                    HttpSession session = request.getSession();
-                    session.setAttribute("user", email);
-                    response.sendRedirect(request.getContextPath() + "/main.html");
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/login.html?error=Invalid+username+or+password");
+                    // ✅ Success: Generate JWT token
+                    Map<String, Object> claims = new HashMap<>();
+                    claims.put("email", email);
+                    claims.put("customerId", rs.getString("id"));
+                    claims.put("firstName", rs.getString("firstName"));
+                    claims.put("lastName", rs.getString("lastName"));
+
+                    String jwtToken = JwtUtil.generateToken(email, claims);
+                    JwtUtil.updateJwtCookie(request, response, jwtToken);
+
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.getWriter().write("{\"message\": \"Login successful\"}");
+                    
+                    return;
                 }
-            } else {
-                response.sendRedirect(request.getContextPath() + "/login.html?error=Invalid+username+or+password");
             }
 
-            rs.close();
-            statement.close();
+            // ❌ Invalid credentials
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\": \"Invalid email or password\"}");
 
         } catch (SQLException e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/login.html?error=Login+failed+due+to+server+error");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\": \"Server error during login\"}");
         }
     }
 }

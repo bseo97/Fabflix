@@ -9,28 +9,26 @@ import java.io.IOException;
 @WebServlet(name = "LogoutServlet", urlPatterns = {"/api/logout"})
 public class LogoutServlet extends HttpServlet {
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        boolean loggedIn = (session != null && session.getAttribute("user") != null);
-        
-        response.setContentType("application/json");
-        response.getWriter().write("{\"loggedIn\": " + loggedIn + "}");
+    private void clearJwtCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("jwtToken", "");
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0); 
+        response.addCookie(cookie);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        logout(request, response); // support GET as well
+        clearJwtCookie(response);
+        response.sendRedirect(request.getContextPath() + "/login.html");
     }
 
-    private void logout(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
-        response.sendRedirect(request.getContextPath() + "/main.html"); // used to be login.html. check back if it does not work
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        clearJwtCookie(response);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"message\": \"Logged out\"}");
     }
 }
