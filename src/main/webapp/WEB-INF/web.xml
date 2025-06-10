@@ -99,6 +99,25 @@
         <servlet-name>LogoutServlet</servlet-name>
         <url-pattern>/api/logout</url-pattern>
     </servlet-mapping>
+   
+    <!-- This is the temp full working for now -->
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>org.example.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/api/login</url-pattern>
+    </servlet-mapping>
+    <filter>
+        <filter-name>LoginFilter</filter-name>
+        <filter-class>org.common.LoginFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- Remove to here after -->
 
     <servlet>
         <servlet-name>CartServlet</servlet-name>

@@ -82,7 +82,7 @@
     </dependencies>
 
     <build>
-        <finalName>fabflix-movie</finalName>
+        <finalName>fabflix-full</finalName>
 
         <resources>
             <resource>

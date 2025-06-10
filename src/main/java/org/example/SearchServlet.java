@@ -136,43 +136,6 @@ public class SearchServlet extends HttpServlet {
             statement.setInt(paramIndex, pageLimit);
 
             ResultSet rs = statement.executeQuery();
-            // boolean hasResults = rs.isBeforeFirst();
-
-            // if (!hasResults && input != null && !input.trim().isEmpty()) {
-            //     rs.close();
-            //     statement.close();
-
-            //     // Fallback to edrec tokenized matching
-            //     StringBuilder fuzzyQuery = new StringBuilder();
-            //     fuzzyQuery.append("SELECT m.id, m.title, m.year, m.director, IFNULL(r.rating, 0.0) AS rating, ");
-            //     fuzzyQuery.append("GROUP_CONCAT(DISTINCT s.name SEPARATOR ', ') AS stars, ");
-            //     fuzzyQuery.append("GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') AS genres ");
-            //     fuzzyQuery.append("FROM movies m ");
-            //     fuzzyQuery.append("LEFT JOIN ratings r ON m.id = r.movieId ");
-            //     fuzzyQuery.append("LEFT JOIN stars_in_movies sim ON m.id = sim.movieId ");
-            //     fuzzyQuery.append("LEFT JOIN stars s ON sim.starId = s.id ");
-            //     fuzzyQuery.append("LEFT JOIN genres_in_movies gim ON m.id = gim.movieId ");
-            //     fuzzyQuery.append("LEFT JOIN genres g ON gim.genreId = g.id ");
-            //     fuzzyQuery.append("WHERE ");
-
-            //     List<String> edrecConditions = new ArrayList<>();
-            //     for (String token : titleList) {
-            //         edrecConditions.add("edrec(?, LOWER(m.title), 2) = 1");
-            //     }
-            //     fuzzyQuery.append(String.join(" AND ", edrecConditions)).append(" ");
-            //     fuzzyQuery.append("GROUP BY m.id, m.title, m.year, m.director, r.rating ");
-            //     fuzzyQuery.append("ORDER BY ed(?, LOWER(m.title)) ASC ");
-            //     fuzzyQuery.append("LIMIT ?");
-
-            //     statement = conn.prepareStatement(fuzzyQuery.toString());
-            //     paramIndex = 1;
-            //     for (String token : titleList) {
-            //         statement.setString(paramIndex++, token.toLowerCase());
-            //     }
-            //     statement.setString(paramIndex++, input.toLowerCase());
-            //     statement.setInt(paramIndex, pageLimit);
-            //     rs = statement.executeQuery();
-            // }
 
             if ("yes".equals(ac)) {
                 JSONArray suggestions = new JSONArray();
