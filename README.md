@@ -79,7 +79,7 @@ https://youtu.be/z5wcuFpePEw
 ## Files Included in the multi-service Directories
 
 - `Dockerfile`
-- `fabflix-multi.yaml`    I have put the multi.yaml only on fabflix-movies directory to avoid confusion
+- `fabflix-multi.yaml`
 - `ingress-multi.yaml`
 - `pom.xml`
 
