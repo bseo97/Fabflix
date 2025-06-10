@@ -5,88 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart - Fabflix</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .nav-links {
-            margin-top: 10px;
-        }
-        .nav-links a {
-            margin-right: 20px;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .section {
-            background-color: #fff;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f8f9fa;
-        }
-        .quantity-input {
-            width: 60px;
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .update-btn, .remove-btn {
-            padding: 5px 10px;
-            margin: 0 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .update-btn {
-            background-color: #28a745;
-            color: white;
-        }
-        .remove-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-        .update-btn:hover {
-            background-color: #218838;
-        }
-        .remove-btn:hover {
-            background-color: #c82333;
-        }
-        .cart-total {
-            font-size: 1.2em;
-            font-weight: bold;
-            text-align: right;
-            padding: 10px;
-        }
-        .empty-cart {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+        .header { background-color: #fff; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; align-items: center; }
+        .nav-links { margin-left: 30px; display: flex; flex-wrap: wrap; }
+        .nav-links a { margin-right: 20px; color: #007bff; text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .section { background-color: #fff; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f9fa; }
+        .cart-actions { display: flex; justify-content: flex-end; }
+        .checkout-btn { padding: 10px 30px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 18px; }
+        .checkout-btn:hover { background-color: #0056b3; }
+        .remove-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .remove-btn:hover { background-color: #b52a37; }
+        .quantity-input { width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        .total-row td { font-weight: bold; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -94,111 +28,153 @@
         <h1>Fabflix</h1>
         <div class="nav-links">
             <a href="main.html">Home</a>
-            <a href="main.html#search">Search Movies</a>
-            <a href="main.html#browse">Browse Movies</a>
+            <a href="result.html">Results</a>
             <a href="cart.html">Shopping Cart</a>
-            <a href="login.html">Login</a>
+            <a id="login-link" href="login.html">Login</a>
         </div>
     </div>
-
     <div class="container">
         <div class="section">
             <h2>Shopping Cart</h2>
-            <div id="cart-content">
-                <!-- Cart items will be loaded here -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Year</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="cartTableBody"></tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="4">Total</td>
+                        <td id="cartTotal">$0.00</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <div class="cart-actions">
+                <button class="checkout-btn" onclick="window.location.href='payment.html'">Proceed to Checkout</button>
             </div>
         </div>
     </div>
-
     <script>
+        function getCart() {
+            return JSON.parse(localStorage.getItem('cart') || '{}');
+        }
+        function setCart(cart) {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
         function updateCart() {
-            fetch('/api/cart')
-                .then(response => response.json())
-                .then(data => {
-                    const cartContent = document.getElementById('cart-content');
-                    if (data.length === 0) {
-                        cartContent.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
-                        return;
-                    }
-
-                    let html = `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Movie</th>
-                                    <th>Quantity</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `;
-
-                    data.forEach(item => {
-                        html += `
-                            <tr>
-                                <td>${item.movieId}</td>
-                                <td>
-                                    <input type="number" class="quantity-input" value="${item.quantity}" min="1" 
-                                           onchange="updateQuantity('${item.movieId}', this.value)">
-                                </td>
-                                <td>
-                                    <button class="update-btn" onclick="updateQuantity('${item.movieId}', document.querySelector('input[data-movie-id=\\'${item.movieId}\\']').value)">
-                                        Update
-                                    </button>
-                                    <button class="remove-btn" onclick="removeItem('${item.movieId}')">
-                                        Remove
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-
+            fetch('/api/cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cart: getCart() })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Cart response:", data); // check for response on data
+                const cartContent = document.getElementById('cartTableBody');
+                const cartTotal = document.getElementById('cartTotal');
+                if (data.length === 0 || (data.length === 1 && data[0].error)) {
+                    cartContent.innerHTML = '<tr><td colspan="6">Your cart is empty</td></tr>';
+                    cartTotal.textContent = '';
+                    return;
+                }
+                let total = 0;
+                let html = ` `;
+                if (!Array.isArray(data)) {
+                    cartContent.innerHTML = '<tr><td colspan="6">Your cart is empty or malformed.</td></tr>';
+                    cartTotal.textContent = '$0.00';
+                    return;
+                }
+                data.forEach(item => {
+                    const subtotal = item.price * item.quantity;
+                    total += subtotal;
                     html += `
-                            </tbody>
-                        </table>
+                        <tr>
+                            <td>${item.title}</td>
+                            <td>${item.year}</td>
+                            <td>$${item.price.toFixed(2)}</td>
+                            <td>
+                                <input type="number" class="quantity-input" value="${item.quantity}" min="1" 
+                                       onchange="updateQuantity('${item.movieId}', this.value)">
+                            </td>
+                            <td>$${subtotal.toFixed(2)}</td>
+                            <td>
+                                <button class="update-btn" onclick="updateQuantity('${item.movieId}', document.querySelector('input[data-movie-id=\'${item.movieId}\']').value)">
+                                    Update
+                                </button>
+                                <button class="remove-btn" onclick="removeItem('${item.movieId}')">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
                     `;
-
-                    cartContent.innerHTML = html;
-                })
-                .catch(error => console.error('Error:', error));
+                });
+                html += `
+                        </tbody>
+                    </table>
+                `;
+                cartContent.innerHTML = html;
+                cartTotal.textContent = '$' + total.toFixed(2);
+            })
+            .catch(error => console.error('Error:', error));
         }
-
         function updateQuantity(movieId, quantity) {
-            fetch('/api/cart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `movieId=${movieId}&action=update&quantity=${quantity}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    updateCart();
-                }
-            })
-            .catch(error => console.error('Error:', error));
+            const cart = getCart();
+            cart[movieId] = parseInt(quantity);
+            setCart(cart);
+            updateCart();
         }
-
         function removeItem(movieId) {
-            fetch('/api/cart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `movieId=${movieId}&action=remove`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    updateCart();
-                }
-            })
-            .catch(error => console.error('Error:', error));
+            const cart = getCart();
+            delete cart[movieId];
+            setCart(cart);
+            updateCart();
         }
-
-        // Load cart when page loads
+        function proceedToCheckout() {
+            window.location.href = 'payment.html';
+        }
         document.addEventListener('DOMContentLoaded', updateCart);
+        // Session check & dynamic logout button
+        fetch("/api/session-check", {
+            credentials: "include"
+        })
+        .then(response => response.json())
+        .then(data => {
+            const nav = document.querySelector(".nav-links");
+            const loginLink = document.getElementById("login-link");
+            if (loginLink) loginLink.remove();
+            if (data.loggedIn) {
+                const button = document.createElement("button");
+                button.textContent = "Logout";
+                button.onclick = function () {
+                    fetch("/api/logout", {
+                        method: "POST",
+                        credentials: "include"
+                    }).then(res => {
+                        if (res.redirected) {
+                            window.location.href = res.url;
+                        } else {
+                            window.location.href = "login.html";
+                        }
+                    }).catch(err => {
+                        console.error("Logout failed:", err);
+                    });
+                };
+                nav.appendChild(button);
+            } else {
+                const loginAnchor = document.createElement("a");
+                loginAnchor.href = "login.html";
+                loginAnchor.textContent = "Login";
+                loginAnchor.id = "login-link";
+                nav.appendChild(loginAnchor);
+            }
+        });
     </script>
 </body>
 </html> 

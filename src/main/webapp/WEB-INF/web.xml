@@ -109,6 +109,15 @@
         <url-pattern>/api/cart</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>PlaceOrderServlet</servlet-name>
+        <servlet-class>org.example.PlaceOrderServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PlaceOrderServlet</servlet-name>
+        <url-pattern>/api/place-order</url-pattern>
+    </servlet-mapping>
+
     <session-config>
         <session-timeout>
             30

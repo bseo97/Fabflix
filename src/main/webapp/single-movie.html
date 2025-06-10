@@ -43,6 +43,20 @@
         a:hover {
             text-decoration: underline;
         }
+
+        .add-to-cart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -53,7 +67,67 @@
     <p><strong>Genres:</strong> <span id="movie-genres">-</span></p>
     <p><strong>Stars:</strong> <span id="movie-stars">-</span></p>
     <p><strong>Rating:</strong> <span id="movie-rating">-</span></p>
+    <button id="addToCartBtn" class="add-to-cart-btn">Add to Cart</button>
 </div>
 <p><a href="main.html">← Back to Main</a></p>
+
+<script>
+    function addToCart(movieId, button) {
+        const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+        cart[movieId] = (cart[movieId] || 0) + 1;
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        fetch('/api/cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cart })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to add to cart');
+            return response.json();
+        })
+        .then(data => {
+            button.textContent = '✓ Added to cart!';
+            setTimeout(() => {
+                button.textContent = 'Add to Cart';
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding to cart');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const movieId = urlParams.get('id');
+        
+        if (movieId) {
+            fetch(`/api/single-movie?id=${movieId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(movie => {
+                    document.getElementById('movie-title').textContent = movie.title;
+                    document.getElementById('movie-year').textContent = movie.year;
+                    document.getElementById('movie-director').textContent = movie.director;
+                    document.getElementById('movie-genres').textContent = movie.genres;
+                    document.getElementById('movie-rating').textContent = movie.rating;
+                    document.getElementById('movie-stars').textContent = movie.stars;
+                    
+                    document.getElementById('addToCartBtn').onclick = function() {
+                        addToCart(movieId, this);
+                    };
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading movie details');
+                });
+        }
+    });
+</script>
 </body>
 </html>
