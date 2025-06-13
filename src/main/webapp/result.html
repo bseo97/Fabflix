@@ -10,131 +10,250 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.min.js"></script>
 
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: Arial, sans-serif;
+            min-height: 100vh;
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            background: url('images/Movie.png') center center/cover no-repeat fixed;
+            background-color: #181a20;
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(20, 24, 36, 0.65);
+            z-index: 0;
         }
         .header {
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            background: rgba(34,34,34,0.98);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            margin-bottom: 32px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            padding: 18px 32px;
+            position: relative;
+            z-index: 10;
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            justify-content: center;
+            position: relative;
+        }
+        .header h1, .header div[style*="font-size"] {
+            color: #ffe082;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            margin: 0;
+            font-weight: 900;
+            text-shadow: none;
         }
         .nav-links {
-            margin-top: 10px;
             display: flex;
-            flex-wrap: wrap;
+            gap: 24px;
+            justify-content: center;
+            flex: 1;
         }
-        .nav-links a {
-            margin-right: 20px;
-            color: #007bff;
+        .nav-links a, .nav-links button {
+            color: #ffe082;
+            background: none;
+            border: none;
             text-decoration: none;
+            font-weight: bold;
+            font-size: 1.15rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+            cursor: pointer;
+        }
+        .nav-links a:hover, .nav-links button:hover {
+            color: #222;
+            background: #ffe082;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background: rgba(255,255,255,0.97);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            padding: 32px 24px;
+            position: relative;
+            z-index: 1;
+        }
+        h1, h2 {
+            color: #222;
+            margin-bottom: 16px;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .section {
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 32px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #222;
+            color: #ffe082;
+            font-weight: bold;
+        }
+        tr {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        tr.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .add-to-cart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #218838;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 12px 2px; }
+            .header { flex-direction: column; align-items: flex-start; padding: 12px 8px; }
+            .nav-links { gap: 10px; }
+        }
+        .search-bar-container {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            min-width: 420px;
         }
         .search-form {
             display: flex;
-            gap: 0px;
             align-items: center;
             width: 100%;
-            max-width: 600px;
+            max-width: 520px;
+            background: #fff;
+            border-radius: 999px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            padding: 0 0 0 16px;
+            margin: 0;
+            position: relative;
         }
         .search-form input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px 0 0 4px;
-            font-size: 16px;
-            height: 100%;
-            box-sizing: border-box;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 999px;
+            font-size: 1.1rem;
+            outline: none;
+            background: transparent;
+            min-width: 0;
+        }
+        .search-form input:focus {
+            background: #f5f5f5;
         }
         .search-form button {
-            padding: 10px 20px;
+            padding: 12px 32px;
             background-color: #007bff;
             color: white;
-            border: 1px solid #007bff;
-            border-radius: 0 4px 4px 0;
+            border: none;
+            border-radius: 999px;
             cursor: pointer;
-            font-size: 16px;
-            height: 100%;
-            box-sizing: border-box;
+            font-size: 1.1rem;
+            margin-left: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.2s;
+            height: 44px;
+            display: flex;
+            align-items: center;
         }
         .search-form button:hover {
             background-color: #0056b3;
         }
         #title-container {
             position: relative;
-            min-width: 400px;
-        }
-        .autocomplete-suggestions { background: #FFF; overflow: auto; }
-        .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
-        .autocomplete-selected { background: #F0F0F0; }
-        .autocomplete-suggestions strong { font-weight: normal; color: #3399FF; }
-        .autocomplete-group { padding: 2px 5px; }
-        .autocomplete-group strong { display: block; border-bottom: 1px solid #000; }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .controls {
-            margin-bottom: 20px;
-        }
-        select, label {
-            margin-right: 10px;
-        }
-        table {
+            min-width: 200px;
             width: 100%;
-            border-collapse: collapse;
-            background-color: white;
         }
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            color: #222;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            z-index: 1000;
+            max-height: 260px;
+            overflow-y: auto;
+            font-size: 1rem;
         }
-        th {
-            background-color: #4285f4;
-            color: white;
+        .autocomplete-suggestion {
+            padding: 10px 16px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
         }
-
-        .add-to-cart-btn { background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; } 
-        .add-to-cart-btn:hover { background-color: #218838; }
-
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .nav-links {
-                justify-content: center;
-            }
-            .search-form {
-                justify-content: center;
-            }
+        .autocomplete-selected, .autocomplete-suggestion:hover {
+            background: #f0f0f0;
+            color: #007bff;
+        }
+        .autocomplete-suggestions strong {
+            font-weight: bold;
+            color: #007bff;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <div style="font-size: 24px; font-weight: bold;">Fabflix</div>
-        <div class="nav-links">
-            <a href="main.html">Home</a>
-            <a href="result.html">Results</a>
-            <a href="cart.html">Shopping Cart</a>
-            <a id="login-link" href="login.html">Login</a>
-        </div>
-        <form class="search-form" action="/result.html" method="GET">
-            <div id="title-container">
-                <input id="autocomplete" type="text" name="title" placeholder="Title">
-                <div class="autocomplete-suggestions"></div>
+        <div class="header-content">
+            <div style="font-size: 2.2rem; font-weight: 900; color: #ffe082; margin: 0 24px 0 0;">Decurb</div>
+            <div class="nav-links">
+                <a href="main.html">Home</a>
+                <a href="result.html">Results</a>
+                <a href="cart.html">Shopping Cart</a>
+                <button id="logout-btn" style="display:none;">Logout</button>
+                <a id="login-link" href="login.html">Login</a>
             </div>
-            <button type="submit">Search</button>
-        </form>
+            <div class="search-bar-container">
+                <form class="search-form" action="/result.html" method="GET">
+                    <div id="title-container">
+                        <input id="autocomplete" type="text" name="title" placeholder="Title">
+                        <div class="autocomplete-suggestions"></div>
+                    </div>
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <div class="container">
@@ -204,7 +323,7 @@
                 .then(data => {
                     const movieResults = document.getElementById("movieResults");
                     movieResults.innerHTML = "";
-                    data.forEach(movie => {
+                    data.forEach((movie, idx) => {
                         const genres = movie.genres?.trim() || "N/A";
                         const stars = movie.stars
                             ? movie.stars.split(",").map(star =>
@@ -223,6 +342,7 @@
                             <td><button class="add-to-cart-btn" onclick="addToCart('${movie.id}', this)">Add to Cart</button></td>
                         `;
                         movieResults.appendChild(row);
+                        setTimeout(() => { row.classList.add('visible'); }, 120 * idx);
                     });
                 });
 
@@ -261,39 +381,19 @@
             });
 
             // Session check
-            fetch("/api/session-check", { credentials: "include" })
-                .then(res => res.json())
-                .then(data => {
-                    const nav = document.querySelector(".nav-links");
-                    const login = document.getElementById("login-link");
-                    if (login) login.remove();
-
-                    if (data.loggedIn) {
-                        const logout = document.createElement("button");
-                        logout.textContent = "Logout";
-                        logout.onclick = () => {
-                            fetch("/api/logout", {
-                                method: "POST",
-                                credentials: "include"
-                            }).then(res => {
-                                window.location.href = res.redirected ? res.url : "login.html";
-                            });
-                        };
-                        nav.appendChild(logout);
-                    } else {
-                        const anchor = document.createElement("a");
-                        anchor.href = "login.html";
-                        anchor.id = "login-link";
-                        anchor.textContent = "Login";
-                        nav.appendChild(anchor);
-                    }
-                });
+            updateLoginLogoutButton();
         });
 
-        function addToCart(movieId, button) {
-            const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-            cart[movieId] = (cart[movieId] || 0) + 1;
+        function getCart() {
+            return JSON.parse(localStorage.getItem('cart') || '{}');
+        }
+        function setCart(cart) {
             localStorage.setItem('cart', JSON.stringify(cart));
+        }
+        function addToCart(movieId, button) {
+            const cart = getCart();
+            cart[movieId] = (cart[movieId] || 0) + 1;
+            setCart(cart);
 
             fetch('/api/cart', {
                 method: 'POST',
@@ -315,6 +415,36 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error adding to cart');
+            });
+        }
+
+        function updateLoginLogoutButton() {
+            fetch("/api/session-check", {
+                credentials: "include"
+            })
+            .then(response => response.json())
+            .then(data => {
+                const nav = document.querySelector(".nav-links");
+                const loginLink = document.getElementById("login-link");
+                const logoutBtn = document.getElementById("logout-btn");
+                if (loginLink) loginLink.style.display = data.loggedIn ? 'none' : '';
+                if (logoutBtn) logoutBtn.style.display = data.loggedIn ? '' : 'none';
+                if (logoutBtn && data.loggedIn) {
+                    logoutBtn.onclick = function () {
+                        fetch("/api/logout", {
+                            method: "POST",
+                            credentials: "include"
+                        }).then(res => {
+                            if (res.redirected) {
+                                window.location.href = res.url;
+                            } else {
+                                window.location.href = "login.html";
+                            }
+                        }).catch(err => {
+                            console.error("Logout failed:", err);
+                        });
+                    };
+                }
             });
         }
     </script>

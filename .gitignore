@@ -85,7 +85,7 @@ buildNumber.properties
 
 # --- Project-specific additions ---
 
-# Temporary XML parsing files (used in Fabflix)
+# Temporary XML parsing files (used in decurb)
 mains243.xml
 casts124.xml
 actors63.xml

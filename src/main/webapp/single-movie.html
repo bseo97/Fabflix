@@ -6,70 +6,117 @@
     <script src="js/single-movie.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
         body {
-            font-family: 'Roboto', sans-serif;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 30px;
-            background-color: #f5f7fa;
-            color: #2c3e50;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: 'Roboto', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            background: #f5f7fa;
+            display: flex;
+            flex-direction: column;
         }
-
+        .movie-card {
+            max-width: 540px;
+            margin: 60px auto 0 auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+            padding: 36px 32px 28px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
         h1 {
-            font-size: 2em;
-            color: #34495e;
-            margin-bottom: 20px;
+            font-size: 2.1em;
+            color: #222;
+            margin-bottom: 18px;
+            font-weight: 800;
         }
-
-        p {
-            font-size: 1.1em;
-            margin: 10px 0;
+        .movie-meta {
+            margin-bottom: 18px;
+            color: #444;
+            font-size: 1.08em;
         }
-
-        strong {
+        .movie-meta strong {
+            color: #007bff;
+            font-weight: 600;
+        }
+        .movie-genres {
+            margin-bottom: 10px;
+        }
+        .movie-genres span {
+            background: #e3e9f7;
+            color: #007bff;
+            border-radius: 6px;
+            padding: 2px 10px;
+            margin-right: 6px;
+            font-size: 0.98em;
+            font-weight: 500;
+        }
+        .movie-stars {
+            margin-bottom: 10px;
+        }
+        .movie-stars a {
             color: #2980b9;
-        }
-
-        a {
-            display: inline-block;
-            margin-top: 30px;
             text-decoration: none;
-            color: #3498db;
-            font-weight: bold;
+            font-weight: 500;
+            margin-right: 8px;
+            transition: color 0.2s;
         }
-
-        a:hover {
+        .movie-stars a:hover {
+            color: #0056b3;
             text-decoration: underline;
         }
-
+        .movie-rating {
+            margin-bottom: 18px;
+            font-size: 1.1em;
+            color: #222;
+        }
         .add-to-cart-btn {
             background-color: #28a745;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 12px 28px;
+            border-radius: 6px;
             cursor: pointer;
-            margin-top: 20px;
-            font-size: 16px;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.2s;
         }
         .add-to-cart-btn:hover {
             background-color: #218838;
         }
+        .back-link {
+            margin-top: 18px;
+            display: inline-block;
+            color: #007bff;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-<h1 id="movie-title">Loading...</h1>
-<div id="movie-details">
-    <p><strong>Year:</strong> <span id="movie-year">-</span></p>
-    <p><strong>Director:</strong> <span id="movie-director">-</span></p>
-    <p><strong>Genres:</strong> <span id="movie-genres">-</span></p>
-    <p><strong>Stars:</strong> <span id="movie-stars">-</span></p>
-    <p><strong>Rating:</strong> <span id="movie-rating">-</span></p>
-    <button id="addToCartBtn" class="add-to-cart-btn">Add to Cart</button>
-</div>
-<p><a href="main.html">← Back to Main</a></p>
+    <div class="movie-card">
+        <h1 id="movie-title">Loading...</h1>
+        <div class="movie-meta"><strong>Year:</strong> <span id="movie-year">-</span></div>
+        <div class="movie-meta"><strong>Director:</strong> <span id="movie-director">-</span></div>
+        <div class="movie-genres"><strong>Genres:</strong> <span id="movie-genres">-</span></div>
+        <div class="movie-stars"><strong>Stars:</strong> <span id="movie-stars">-</span></div>
+        <div class="movie-rating"><strong>Rating:</strong> <span id="movie-rating">-</span></div>
+        <button id="addToCartBtn" class="add-to-cart-btn">Add to Cart</button>
+        <a class="back-link" href="main.html">← Back to Main</a>
+    </div>
 
 <script>
     function addToCart(movieId, button) {
@@ -114,10 +161,28 @@
                     document.getElementById('movie-title').textContent = movie.title;
                     document.getElementById('movie-year').textContent = movie.year;
                     document.getElementById('movie-director').textContent = movie.director;
-                    document.getElementById('movie-genres').textContent = movie.genres;
+                    // Genres as chips
+                    const genresElem = document.getElementById('movie-genres');
+                    genresElem.innerHTML = '';
+                    if (movie.genres) {
+                        movie.genres.split(',').forEach(g => {
+                            genresElem.innerHTML += `<span>${g.trim()}</span>`;
+                        });
+                    } else {
+                        genresElem.textContent = '-';
+                    }
+                    // Stars as links
+                    const starsElem = document.getElementById('movie-stars');
+                    starsElem.innerHTML = '';
+                    if (movie.stars) {
+                        movie.stars.split(',').forEach(star => {
+                            const trimmed = star.trim();
+                            starsElem.innerHTML += `<a href="single-star.html?name=${encodeURIComponent(trimmed)}">${trimmed}</a>`;
+                        });
+                    } else {
+                        starsElem.textContent = '-';
+                    }
                     document.getElementById('movie-rating').textContent = movie.rating;
-                    document.getElementById('movie-stars').textContent = movie.stars;
-                    
                     document.getElementById('addToCartBtn').onclick = function() {
                         addToCart(movieId, this);
                     };

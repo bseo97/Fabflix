@@ -24,16 +24,20 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        try (Connection conn = dataSource.getConnection()) {
+        try {
+            Connection conn = dataSource.getConnection();
+            
             String query = "SELECT id, password, firstName, lastName FROM customers WHERE email = ?";
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, email);
+            
             ResultSet rs = statement.executeQuery();
 
             if (rs.next()) {
@@ -52,9 +56,13 @@ public class LoginServlet extends HttpServlet {
 
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.getWriter().write("{\"message\": \"Login successful\"}");
-                    
+                    System.out.println("🟡 DEBUG: Login successful, JWT token generated");
                     return;
+                } else {
+                    System.out.println("🟡 DEBUG: Password mismatch");
                 }
+            } else {
+                System.out.println("🟡 DEBUG: No user found with email: " + email);
             }
 
             // ❌ Invalid credentials
@@ -62,6 +70,10 @@ public class LoginServlet extends HttpServlet {
             response.getWriter().write("{\"error\": \"Invalid email or password\"}");
 
         } catch (SQLException e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\": \"Server error during login\"}");
+        } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"error\": \"Server error during login\"}");

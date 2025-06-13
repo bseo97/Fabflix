@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>fabflix-movie</artifactId>
+    <artifactId>decurb-movie</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>Fabflix Movie Service</name>
+    <name>decurb Movie Service</name>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -82,7 +82,7 @@
     </dependencies>
 
     <build>
-        <finalName>fabflix</finalName>
+        <finalName>ROOT</finalName>
 
         <resources>
             <resource>

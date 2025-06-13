@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
 
-    <display-name>Fabflix Movie Service</display-name>
+    <display-name>decurb Movie Service</display-name>
 
     <resource-ref>
         <description>MySQL DataSource Master</description>

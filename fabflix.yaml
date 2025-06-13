@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment # Specifies that this resource is a Deployment, used for managing a set of replicas of a pod.
 metadata:
-  name: fabflix # Names this Deployment as "fabflix".
+  name: decurb # Names this Deployment as "decurb".
 spec:
   replicas: 2 # Indicates that two replicas (pods) of the application should be running.
   selector:
     matchLabels:
-      app: fabflix # The selector specifies that this Deployment targets pods with the label "app: fabflix".
+      app: decurb # The selector specifies that this Deployment targets pods with the label "app: decurb".
   template:
     metadata:
       labels:
-        app: fabflix # Labels the pods with "app: fabflix" to match the selector.
+        app: decurb # Labels the pods with "app: decurb" to match the selector.
     spec:
       containers:
-        - name: fabflix-container # Names the container within the pod as "fabflix-container".
-          image: bseo97/fabflix-full:v3 # Uses the Docker image for container
+        - name: decurb-container # Names the container within the pod as "decurb-container".
+          image: bseo97/decurb-full:v3 # Uses the Docker image for container
           imagePullPolicy: Always # Specifies that the image should always be pulled from the repository when the image is updated.
           ports:
             - name: http
@@ -29,10 +29,10 @@ spec:
 apiVersion: v1
 kind: Service # Specifies that this resource is a Service, which defines a logical set of pods and a policy to access them.
 metadata:
-  name: fabflix-service # Names this Service as "fabflix-service".
+  name: decurb-service # Names this Service as "decurb-service".
 spec:
   selector:
-    app: fabflix # The selector specifies that this Service targets pods with the label "app: fabflix".
+    app: decurb # The selector specifies that this Service targets pods with the label "app: decurb".
   ports:
     - name: http
       port: 8080 # Exposes the service on port 8080.

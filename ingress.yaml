@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/session-cookie-name: "stickounet" # Sets the name of the session cookie used for maintaining session affinity.
     nginx.ingress.kubernetes.io/session-cookie-expires: "172800" # Specifies the expiration time of the session cookie in seconds (172800 seconds = 2 days).
     nginx.ingress.kubernetes.io/session-cookie-max-age: "172800" # Sets the maximum age of the session cookie in seconds, aligning with the expiration time.
-  name: fabflix-ingress # Names this Ingress resource as "fabflix-ingress".
+  name: decurb-ingress # Names this Ingress resource as "decurb-ingress".
   namespace: default
 spec:
   rules:
@@ -15,7 +15,7 @@ spec:
         paths:
           - backend:
               service:
-                name: fabflix-service # Points to the service named "fabflix-service". The value should match the name of the service.
+                name: decurb-service # Points to the service named "decurb-service". The value should match the name of the service.
                 port:
                   number: 8080 # Specifies that the service is listening on port 8080.
             path: / # # Defines the path to match incoming requests. Here, "/" means the root path.

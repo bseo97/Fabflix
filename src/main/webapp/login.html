@@ -3,21 +3,88 @@
 <head>
     <title>Login</title>
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            /* Movie-themed background image with overlay */
+            background: url('images/Movie.png') center center/cover no-repeat fixed;
+            background-color: #181a20; /* fallback for empty space */
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(20, 24, 36, 0.65); /* dark overlay for readability */
+            z-index: 0;
+        }
+        .center-container {
+            min-height: 100vh;
+            min-width: 100vw;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f5f5f5;
+            position: relative;
+            z-index: 1;
+        }
+        .header-container, .login-container {
+            position: relative;
+            z-index: 2;
+        }
+        .header-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 0;
+            margin-bottom: 2.5rem;
+        }
+        .site-title {
+            font-size: 3.2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            color: #fff;
+            opacity: 0;
+            text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+        }
+        .site-subtitle {
+            font-size: 1.3rem;
+            color: #ffe082;
+            min-height: 1.5em;
+            font-family: 'Fira Mono', 'Consolas', monospace;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+        }
+        .cursor {
+            display: inline-block;
+            width: 1ch;
+            color: #ffe082;
+            font-weight: bold;
+            animation: blink 0.7s linear infinite;
+        }
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
         }
         .login-container {
-            background-color: white;
+            background-color: rgba(255,255,255,0.97);
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            width: 320px;
+            margin: 0 auto;
         }
         .form-group {
             margin-bottom: 1rem;
@@ -55,22 +122,28 @@
     <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
-        <form id="login-form">
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="text" id="email" name="email" placeholder="Email" required>
-            </div>
+    <div class="center-container">
+        <div class="header-container">
+            <h1 class="site-title" id="site-title">Decurb</h1>
+            <h2 class="site-subtitle" id="typing-subtitle"></h2>
+        </div>
+        <div class="login-container">
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="text" id="email" name="email" placeholder="Email" required>
+                </div>
 
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" placeholder="Password" required>
-            </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                </div>
 
-            <button type="submit">Login</button>
-        </form>
-        <div id="error" style="color: red;"></div>
+                <button type="submit">Login</button>
+            </form>
+            <div id="error" style="color: red;"></div>
+        </div>
     </div>
 
     <script>
@@ -85,6 +158,9 @@
             try {
                 const response = await fetch("/api/login", {
                     method: "POST",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
                     body: new URLSearchParams({ email, password }),
                     credentials: "include" // important for sending/receiving cookies
                 });
@@ -101,6 +177,45 @@
                 document.getElementById("error").innerText = "Server error. Try again.";
             }
         });
+
+        // Fade-in effect for the title
+        document.addEventListener("DOMContentLoaded", function() {
+            const title = document.getElementById("site-title");
+            title.style.opacity = 0;
+            setTimeout(() => {
+                title.style.transition = "opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1)";
+                title.style.opacity = 1;
+            }, 300);
+        });
+
+        // Typing effect for subtitle with blinking cursor
+        document.addEventListener("DOMContentLoaded", function() {
+            const subtitle = "Decade of your Best Movies";
+            const subtitleElem = document.getElementById("typing-subtitle");
+            let i = 0;
+            let typingDone = false;
+            function typeLetter() {
+                if (i <= subtitle.length) {
+                    subtitleElem.innerHTML = subtitle.slice(0, i) + '<span class="cursor">|</span>';
+                    i++;
+                    setTimeout(typeLetter, 60);
+                } else {
+                    typingDone = true;
+                    blinkCursor();
+                }
+            }
+            function blinkCursor() {
+                if (!typingDone) return;
+                const cursor = subtitleElem.querySelector('.cursor');
+                if (cursor) {
+                    cursor.style.visibility = cursor.style.visibility === 'hidden' ? 'visible' : 'hidden';
+                }
+                setTimeout(blinkCursor, 700);
+            }
+            // Start typing after the title fade-in
+            setTimeout(typeLetter, 1600);
+        });
     </script>
 </body>
 </html>
+

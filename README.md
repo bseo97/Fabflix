@@ -1,4 +1,4 @@
-# Fabflix Project 5 - Scalable Deployment with Docker and Kubernetes
+# decurb Project 5 - Scalable Deployment with Docker and Kubernetes
 
 ## General
 
@@ -10,9 +10,9 @@ https://youtu.be/z5wcuFpePEw
 #### Instruction of Deployment:
 1. Set up a Kubernetes cluster on AWS using kOps with 1 control-plane and 3 worker nodes.
 2. Deploy a single MySQL server to handle both master and slave configurations.
-3. Monolithic version: Use `kubectl apply -f fabflix.yaml` and `kubectl apply -f ingress.yaml` to deploy the Fabflix application.
-4. Access the Fabflix site using the AWS ELB URL.
-5. For multi-service architecture, stop the original deployment using `kubectl scale`, then apply `fabflix-multi.yaml` and `ingress-multi.yaml`.
+3. Monolithic version: Use `kubectl apply -f decurb.yaml` and `kubectl apply -f ingress.yaml` to deploy the decurb application.
+4. Access the decurb site using the AWS ELB URL.
+5. For multi-service architecture, stop the original deployment using `kubectl scale`, then apply `decurb-multi.yaml` and `ingress-multi.yaml`.
 
 #### Collaborations and Work Distribution:
 - **Brian Seo**: Kubernetes ingress configuration, JWT-based session architecture, MySQL read-write splitting, cart and order processing, Docker image publishing, cluster debugging, full-stack integration, and final video demo.
@@ -20,15 +20,15 @@ https://youtu.be/z5wcuFpePEw
 
 ---
 
-## Task 1: Run the Fabflix application in a Docker container
+## Task 1: Run the decurb application in a Docker container
 
-- Followed Murphy Movies "Docker" branch to build and verify Fabflix as a Docker image.
+- Followed Murphy Movies "Docker" branch to build and verify decurb as a Docker image.
 - Created two images:
-  - `fabflix-login`: handles user authentication and session
-  - `fabflix-movies`: handles browsing, search, cart, checkout
+  - `decurb-login`: handles user authentication and session
+  - `decurb-movies`: handles browsing, search, cart, checkout
 - Docker images pushed to Docker Hub:  
-  - `bseo97/fabflix-login:v3`  
-  - `bseo97/fabflix-movies:v3`  
+  - `bseo97/decurb-login:v3`  
+  - `bseo97/decurb-movies:v3`  
 
 ---
 
@@ -40,9 +40,9 @@ https://youtu.be/z5wcuFpePEw
 
 ---
 
-## Task 3: Deploy Fabflix to the K8s cluster
+## Task 3: Deploy decurb to the K8s cluster
 
-- Wrote `fabflix.yaml` and `ingress.yaml` to deploy Fabflix application.
+- Wrote `decurb.yaml` and `ingress.yaml` to deploy decurb application.
 - Moved MySQL database into the cluster using StatefulSet (MySQL master + slave).
 - Verified:
   - Functional login
@@ -52,13 +52,13 @@ https://youtu.be/z5wcuFpePEw
 
 ---
 
-## Task 4: Revise Fabflix using a multi-service architecture
+## Task 4: Revise decurb using a multi-service architecture
 
-- Split the Fabflix app into two services:
-  - `/api/login`, `/api/logout`, `/api/session-check` → `fabflix-login`
-  - All other `/api/...` and static files → `fabflix-movies`
+- Split the decurb app into two services:
+  - `/api/login`, `/api/logout`, `/api/session-check` → `decurb-login`
+  - All other `/api/...` and static files → `decurb-movies`
 - Used Maven multi-profile system to compile separate `.war` files.
-- Wrote `fabflix-multi.yaml` and `ingress-multi.yaml`:
+- Wrote `decurb-multi.yaml` and `ingress-multi.yaml`:
   - Set Ingress rules to route requests to the appropriate service
   - Configured session stickiness using cookies
 - Verified:
@@ -72,14 +72,14 @@ https://youtu.be/z5wcuFpePEw
 ## Files Included in the Monolithic Directory
 
 - `Dockerfile`
-- `fabflix.yaml`
+- `decurb.yaml`
 - `ingress.yaml`
 - `pom.xml`
 
 ## Files Included in the multi-service Directories
 
 - `Dockerfile`
-- `fabflix-multi.yaml`
+- `decurb-multi.yaml`
 - `ingress-multi.yaml`
 - `pom.xml`
 

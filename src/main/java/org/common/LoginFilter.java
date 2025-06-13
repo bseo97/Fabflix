@@ -53,7 +53,18 @@ public class LoginFilter implements Filter {
          Always allow your own login related requests(html, js, servlet, etc..)
          You might also want to allow some CSS files, etc..
          */
-        return requestURI.startsWith("/api/login") || requestURI.endsWith("login.html");
+        return requestURI.startsWith("/api/login")
+            || requestURI.endsWith("login.html")
+            || requestURI.startsWith("/images/")
+            || requestURI.endsWith(".css")
+            || requestURI.endsWith(".js")
+            || requestURI.endsWith(".png")
+            || requestURI.endsWith(".jpg")
+            || requestURI.endsWith(".jpeg")
+            || requestURI.endsWith(".gif")
+            || requestURI.endsWith(".woff2")
+            || requestURI.endsWith(".woff")
+            || requestURI.endsWith(".ttf");
     }
 
     public void init(FilterConfig fConfig) {
