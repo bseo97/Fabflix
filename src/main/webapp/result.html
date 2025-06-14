@@ -8,15 +8,19 @@
     <!-- Include jQuery and Autocomplete -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        body, input, button, h1, h2, h3, h4, h5, h6, div, span, table, th, td, a {
+            font-family: 'Inter', Arial, sans-serif;
         }
         body {
-            font-family: Arial, sans-serif;
             min-height: 100vh;
             margin: 0;
             background: url('images/Movie.png') center center/cover no-repeat fixed;
@@ -237,21 +241,21 @@
     <div class="header">
         <div class="header-content">
             <div style="font-size: 2.2rem; font-weight: 900; color: #ffe082; margin: 0 24px 0 0;">Decurb</div>
-            <div class="nav-links">
-                <a href="main.html">Home</a>
-                <a href="result.html">Results</a>
-                <a href="cart.html">Shopping Cart</a>
+        <div class="nav-links">
+            <a href="main.html">Home</a>
+            <a href="result.html">Results</a>
+            <a href="cart.html">Shopping Cart</a>
                 <button id="logout-btn" style="display:none;">Logout</button>
-                <a id="login-link" href="login.html">Login</a>
-            </div>
+            <a id="login-link" href="login.html">Login</a>
+        </div>
             <div class="search-bar-container">
-                <form class="search-form" action="/result.html" method="GET">
-                    <div id="title-container">
-                        <input id="autocomplete" type="text" name="title" placeholder="Title">
-                        <div class="autocomplete-suggestions"></div>
-                    </div>
-                    <button type="submit">Search</button>
-                </form>
+        <form class="search-form" action="/result.html" method="GET">
+            <div id="title-container">
+                <input id="autocomplete" type="text" name="title" placeholder="Title">
+                <div class="autocomplete-suggestions"></div>
+            </div>
+            <button type="submit">Search</button>
+        </form>
             </div>
         </div>
     </div>

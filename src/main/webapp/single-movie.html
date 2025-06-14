@@ -4,15 +4,18 @@
     <meta charset="UTF-8">
     <title>Movie Details</title>
     <script src="js/single-movie.js" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        body, input, button, h1, h2, h3, h4, h5, h6, div, span, table, th, td, a {
+            font-family: 'Inter', Arial, sans-serif;
         }
         body {
-            font-family: 'Roboto', Arial, sans-serif;
             min-height: 100vh;
             margin: 0;
             background: #f5f7fa;
@@ -108,15 +111,15 @@
 </head>
 <body>
     <div class="movie-card">
-        <h1 id="movie-title">Loading...</h1>
+<h1 id="movie-title">Loading...</h1>
         <div class="movie-meta"><strong>Year:</strong> <span id="movie-year">-</span></div>
         <div class="movie-meta"><strong>Director:</strong> <span id="movie-director">-</span></div>
         <div class="movie-genres"><strong>Genres:</strong> <span id="movie-genres">-</span></div>
         <div class="movie-stars"><strong>Stars:</strong> <span id="movie-stars">-</span></div>
         <div class="movie-rating"><strong>Rating:</strong> <span id="movie-rating">-</span></div>
-        <button id="addToCartBtn" class="add-to-cart-btn">Add to Cart</button>
+    <button id="addToCartBtn" class="add-to-cart-btn">Add to Cart</button>
         <a class="back-link" href="main.html">← Back to Main</a>
-    </div>
+</div>
 
 <script>
     function addToCart(movieId, button) {

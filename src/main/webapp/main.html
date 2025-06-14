@@ -4,14 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decurb</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        body, input, button, h1, h2, h3, h4, h5, h6, div, span, table, th, td, a {
+            font-family: 'Inter', Arial, sans-serif;
         }
         body {
-            font-family: Arial, sans-serif;
             min-height: 100vh;
             margin: 0;
             background: url('images/Movie.png') center center/cover no-repeat fixed;
@@ -268,6 +272,24 @@
             font-weight: bold;
             color: #007bff;
         }
+        .fade-in-title {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        .fade-in-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .greeting-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 18px;
+            text-align: center;
+            color: #222;
+            opacity: 0;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.min.js"></script>
@@ -294,12 +316,13 @@
             </div>
         </div>
     </div>
-    <div class="container">
-        <div class="section">
-            <h2>Explore Decurb</h2>
+    <div class="container" style="max-width:1200px;margin:40px auto;">
+        <div id="chatbot-greeting" class="greeting-title" style="font-weight:400;">Hey, Ready to dive in?</div>
+        <div id="chatbot-bar-section" class="section" style="padding:0;">
+            <div id="chatbot-bar"></div>
         </div>
         <div class="section">
-            <h2>Top 20 Rated Movies</h2>
+            <h2 id="top20-title" style="font-size:2rem;margin-bottom:18px;text-align:center;font-weight:400;">Top 20 Rated Movies</h2>
             <table>
                 <thead>
                     <tr>
@@ -316,46 +339,6 @@
             </table>
         </div>
         <div class="section" id="browse">
-            <h2>Browse by Title</h2>
-            <div class="browse-buttons">
-                <a href="result.html?startsWith=*" class="browse-button">*</a>
-                <a href="result.html?startsWith=0" class="browse-button">0</a>
-                <a href="result.html?startsWith=1" class="browse-button">1</a>
-                <a href="result.html?startsWith=2" class="browse-button">2</a>
-                <a href="result.html?startsWith=3" class="browse-button">3</a>
-                <a href="result.html?startsWith=4" class="browse-button">4</a>
-                <a href="result.html?startsWith=5" class="browse-button">5</a>
-                <a href="result.html?startsWith=6" class="browse-button">6</a>
-                <a href="result.html?startsWith=7" class="browse-button">7</a>
-                <a href="result.html?startsWith=8" class="browse-button">8</a>
-                <a href="result.html?startsWith=9" class="browse-button">9</a>
-                <a href="result.html?startsWith=A" class="browse-button">A</a>
-                <a href="result.html?startsWith=B" class="browse-button">B</a>
-                <a href="result.html?startsWith=C" class="browse-button">C</a>
-                <a href="result.html?startsWith=D" class="browse-button">D</a>
-                <a href="result.html?startsWith=E" class="browse-button">E</a>
-                <a href="result.html?startsWith=F" class="browse-button">F</a>
-                <a href="result.html?startsWith=G" class="browse-button">G</a>
-                <a href="result.html?startsWith=H" class="browse-button">H</a>
-                <a href="result.html?startsWith=I" class="browse-button">I</a>
-                <a href="result.html?startsWith=J" class="browse-button">J</a>
-                <a href="result.html?startsWith=K" class="browse-button">K</a>
-                <a href="result.html?startsWith=L" class="browse-button">L</a>
-                <a href="result.html?startsWith=M" class="browse-button">M</a>
-                <a href="result.html?startsWith=N" class="browse-button">N</a>
-                <a href="result.html?startsWith=O" class="browse-button">O</a>
-                <a href="result.html?startsWith=P" class="browse-button">P</a>
-                <a href="result.html?startsWith=Q" class="browse-button">Q</a>
-                <a href="result.html?startsWith=R" class="browse-button">R</a>
-                <a href="result.html?startsWith=S" class="browse-button">S</a>
-                <a href="result.html?startsWith=T" class="browse-button">T</a>
-                <a href="result.html?startsWith=U" class="browse-button">U</a>
-                <a href="result.html?startsWith=V" class="browse-button">V</a>
-                <a href="result.html?startsWith=W" class="browse-button">W</a>
-                <a href="result.html?startsWith=X" class="browse-button">X</a>
-                <a href="result.html?startsWith=Y" class="browse-button">Y</a>
-                <a href="result.html?startsWith=Z" class="browse-button">Z</a>
-            </div>
             <h2>Browse by Genre</h2>
             <div class="genres-grid" id="genreGrid"></div>
             <script>
@@ -444,6 +427,7 @@
             fetch("/api/top20-rated")
                 .then(response => response.json())
                 .then(movies => {
+                    // Render movies
                     const tableBody = document.getElementById('movieTableBody');
                     tableBody.innerHTML = "";
                     movies.forEach((movie, idx) => {
@@ -466,6 +450,29 @@
                     });
                 })
                 .catch(error => console.error('Error loading movies:', error));
+            var greet = document.getElementById("chatbot-greeting");
+            if (greet) {
+                setTimeout(function() {
+                    greet.style.opacity = 1;
+                    // After fade-in, start typing animation for chatbot input placeholder
+                    setTimeout(function() {
+                        var input = document.getElementById('chatbot-input');
+                        if (input) {
+                            var placeholder = "Ask anything about Decurb";
+                            input.placeholder = "";
+                            let i = 0;
+                            function typeLetter() {
+                                if (i <= placeholder.length) {
+                                    input.placeholder = placeholder.slice(0, i);
+                                    i++;
+                                    setTimeout(typeLetter, 48);
+                                }
+                            }
+                            typeLetter();
+                        }
+                    }, 900); // delay after fade-in
+                }, 300);
+            }
         });
         // Autocomplete
         function handleLookup(query, doneCallback) {
@@ -506,5 +513,8 @@
             minChars: 3
         });
     </script>
+    
+    <!-- Move chatbot.js to the very end -->
+    <script src="js/chatbot.js"></script>
 </body>
 </html>
