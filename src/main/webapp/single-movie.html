@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Details</title>
-    <script src="js/single-movie.js" defer></script>
+    <link rel="icon" type="image/svg+xml" href="images/logo.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         html, body {
@@ -18,9 +19,158 @@
         body {
             min-height: 100vh;
             margin: 0;
-            background: #f5f7fa;
+            background: url('images/Movie.png') center center/cover no-repeat fixed;
+            background-color: #181a20;
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(20, 24, 36, 0.65);
+            z-index: 0;
+        }
+        .header {
+            background: rgba(34,34,34,0.98);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            margin-bottom: 32px;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 18px 32px;
+            position: relative;
+            z-index: 10;
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            justify-content: center;
+            position: relative;
+        }
+        .header h1 {
+            color: #ffe082;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            margin: 0;
+            font-weight: 900;
+            text-shadow: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex: 1;
+        }
+        .nav-links a, .nav-links button {
+            color: #ffe082;
+            background: none;
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.15rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+            cursor: pointer;
+        }
+        .nav-links a:hover, .nav-links button:hover {
+            color: #222;
+            background: #ffe082;
+        }
+        .search-bar-container {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            min-width: 420px;
+        }
+        .search-form {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 520px;
+            background: #fff;
+            border-radius: 999px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            padding: 0 0 0 16px;
+            margin: 0;
+            position: relative;
+        }
+        .search-form input {
+            width: 100%;
+            padding: 12px 60px 12px 16px;
+            border: none;
+            border-radius: 999px;
+            font-size: 1.1rem;
+            outline: none;
+            background: transparent;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+        .search-form input:focus {
+            background: #f5f5f5;
+        }
+        .search-form button {
+            background: #e9e9ee;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            padding: 0;
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .search-form button:hover {
+            background: #d1d1d8;
+        }
+        .search-form button svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+        }
+        #title-container {
+            position: relative;
+            min-width: 200px;
+            width: 100%;
+        }
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            color: #222;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            z-index: 1000;
+            max-height: 260px;
+            overflow-y: auto;
+            font-size: 1rem;
+        }
+        .autocomplete-suggestion {
+            padding: 10px 16px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .autocomplete-selected, .autocomplete-suggestion:hover {
+            background: #f0f0f0;
+            color: #007bff;
+        }
+        .autocomplete-suggestions strong {
+            font-weight: bold;
+            color: #007bff;
         }
         .movie-card {
             max-width: 540px;
@@ -32,6 +182,8 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            position: relative;
+            z-index: 1;
         }
         h1 {
             font-size: 2.1em;
@@ -108,94 +260,134 @@
             text-decoration: underline;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.min.js"></script>
+    <script src="js/single-movie.js" defer></script>
 </head>
 <body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Decurb</h1>
+            <div class="nav-links">
+                <a href="main.html">Home</a>
+                <a href="result.html">Results</a>
+                <a href="cart.html">Shopping Cart</a>
+                <button id="logout-btn" style="display:none;">Logout</button>
+                <a id="login-link" href="login.html">Login</a>
+            </div>
+            <div class="search-bar-container">
+                <form class="search-form" action="/result.html" method="GET">
+                    <div id="title-container">
+                        <input id="autocomplete" type="text" name="title" placeholder="Title">
+                        <div class="autocomplete-suggestions"></div>
+                    </div>
+                    <button type="submit" aria-label="Search" class="search-arrow-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="11" fill="#e9e9ee"/><path d="M8 12h8M13 8l4 4-4 4" stroke="#222"/></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="movie-card">
-<h1 id="movie-title">Loading...</h1>
+        <h1 id="movie-title">Loading...</h1>
         <div class="movie-meta"><strong>Year:</strong> <span id="movie-year">-</span></div>
         <div class="movie-meta"><strong>Director:</strong> <span id="movie-director">-</span></div>
         <div class="movie-genres"><strong>Genres:</strong> <span id="movie-genres">-</span></div>
         <div class="movie-stars"><strong>Stars:</strong> <span id="movie-stars">-</span></div>
         <div class="movie-rating"><strong>Rating:</strong> <span id="movie-rating">-</span></div>
-    <button id="addToCartBtn" class="add-to-cart-btn">Add to Cart</button>
-        <a class="back-link" href="main.html">← Back to Main</a>
-</div>
+        <button id="addToCartBtn" class="add-to-cart-btn">Add to Cart</button>
+        <a class="back-link" href="main.html">← Back to Home</a>
+    </div>
 
-<script>
-    function addToCart(movieId, button) {
-        const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-        cart[movieId] = (cart[movieId] || 0) + 1;
-        localStorage.setItem('cart', JSON.stringify(cart));
-
-        fetch('/api/cart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ cart })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Failed to add to cart');
-            return response.json();
-        })
-        .then(data => {
-            button.textContent = '✓ Added to cart!';
-            setTimeout(() => {
-                button.textContent = 'Add to Cart';
-            }, 2000);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error adding to cart');
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const movieId = urlParams.get('id');
-        
-        if (movieId) {
-            fetch(`/api/single-movie?id=${movieId}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(movie => {
-                    document.getElementById('movie-title').textContent = movie.title;
-                    document.getElementById('movie-year').textContent = movie.year;
-                    document.getElementById('movie-director').textContent = movie.director;
-                    // Genres as chips
-                    const genresElem = document.getElementById('movie-genres');
-                    genresElem.innerHTML = '';
-                    if (movie.genres) {
-                        movie.genres.split(',').forEach(g => {
-                            genresElem.innerHTML += `<span>${g.trim()}</span>`;
-                        });
-                    } else {
-                        genresElem.textContent = '-';
-                    }
-                    // Stars as links
-                    const starsElem = document.getElementById('movie-stars');
-                    starsElem.innerHTML = '';
-                    if (movie.stars) {
-                        movie.stars.split(',').forEach(star => {
-                            const trimmed = star.trim();
-                            starsElem.innerHTML += `<a href="single-star.html?name=${encodeURIComponent(trimmed)}">${trimmed}</a>`;
-                        });
-                    } else {
-                        starsElem.textContent = '-';
-                    }
-                    document.getElementById('movie-rating').textContent = movie.rating;
-                    document.getElementById('addToCartBtn').onclick = function() {
-                        addToCart(movieId, this);
-                    };
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error loading movie details');
-                });
+    <script>
+        function getCart() {
+            return JSON.parse(localStorage.getItem('cart') || '{}');
         }
-    });
-</script>
+        function setCart(cart) {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+        function addToCart(movieId, button) {
+            const cart = getCart();
+            cart[movieId] = (cart[movieId] || 0) + 1;
+            setCart(cart);
+
+            fetch('/api/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ cart })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to add to cart');
+                return response.json();
+            })
+            .then(data => {
+                button.textContent = '✓ Added to cart!';
+                setTimeout(() => {
+                    button.textContent = 'Add to Cart';
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                button.textContent = 'Add to Cart';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const movieId = urlParams.get('id');
+            
+            if (movieId) {
+                fetch(`/api/single-movie?id=${movieId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(movie => {
+                        document.getElementById('movie-title').textContent = movie.title;
+                        document.getElementById('movie-year').textContent = movie.year;
+                        document.getElementById('movie-director').textContent = movie.director;
+                        
+                        // Genres as chips
+                        const genresElem = document.getElementById('movie-genres');
+                        genresElem.innerHTML = '';
+                        if (movie.genres) {
+                            movie.genres.split(',').forEach(g => {
+                                genresElem.innerHTML += `<span>${g.trim()}</span>`;
+                            });
+                        } else {
+                            genresElem.textContent = '-';
+                        }
+                        
+                        // Stars as links
+                        const starsElem = document.getElementById('movie-stars');
+                        starsElem.innerHTML = '';
+                        if (movie.stars) {
+                            movie.stars.split(',').forEach(star => {
+                                const starLink = document.createElement('a');
+                                starLink.href = `single-star.html?name=${encodeURIComponent(star.trim())}`;
+                                starLink.textContent = star.trim();
+                                starsElem.appendChild(starLink);
+                                if (star !== movie.stars.split(',').pop()) {
+                                    starsElem.appendChild(document.createTextNode(', '));
+                                }
+                            });
+                        } else {
+                            starsElem.textContent = '-';
+                        }
+                        
+                        document.getElementById('movie-rating').textContent = movie.rating || '-';
+                        
+                        // Add click event listener to the Add to Cart button
+                        const addToCartBtn = document.getElementById('addToCartBtn');
+                        addToCartBtn.addEventListener('click', () => addToCart(movieId, addToCartBtn));
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        });
+    </script>
 </body>
 </html>

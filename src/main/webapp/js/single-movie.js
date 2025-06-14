@@ -29,9 +29,50 @@ window.addEventListener("DOMContentLoaded", () => {
             document.getElementById("movie-rating").textContent = (movie.rating !== undefined)
                 ? Number(movie.rating).toFixed(1)
                 : "N/A";
+
+            // Add to Cart button event
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            addToCartBtn.addEventListener('click', function() {
+                addToCart(movieId, addToCartBtn);
+            });
         })
         .catch(error => {
             console.error("Error fetching movie details:", error);
             document.body.innerHTML = "<h1>Error loading movie details</h1>";
         });
+
+    // Add to Cart logic (same as main.html)
+    function getCart() {
+        return JSON.parse(localStorage.getItem('cart') || '{}');
+    }
+    function setCart(cart) {
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }
+    function addToCart(movieId, button) {
+        const cart = getCart();
+        cart[movieId] = (cart[movieId] || 0) + 1;
+        setCart(cart);
+
+        fetch('/api/cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cart })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to add to cart');
+            return response.json();
+        })
+        .then(data => {
+            button.textContent = '✓ Added to cart!';
+            setTimeout(() => {
+                button.textContent = 'Add to Cart';
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            button.textContent = 'Add to Cart';
+        });
+    }
 });

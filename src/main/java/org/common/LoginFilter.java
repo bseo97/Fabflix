@@ -54,6 +54,7 @@ public class LoginFilter implements Filter {
          You might also want to allow some CSS files, etc..
          */
         return requestURI.startsWith("/api/login")
+            || requestURI.startsWith("/api/signup")
             || requestURI.endsWith("login.html")
             || requestURI.startsWith("/images/")
             || requestURI.endsWith(".css")
@@ -70,6 +71,7 @@ public class LoginFilter implements Filter {
     public void init(FilterConfig fConfig) {
         allowedURIs.add("login.html");
         allowedURIs.add("api/login");
+        allowedURIs.add("api/signup");
     }
 
     public void destroy() {

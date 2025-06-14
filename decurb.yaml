@@ -13,16 +13,25 @@ spec:
         app: decurb # Labels the pods with "app: decurb" to match the selector.
     spec:
       containers:
-        - name: decurb-container # Names the container within the pod as "decurb-container".
-          image: bseo97/decurb-full:v3 # Uses the Docker image for container
-          imagePullPolicy: Always # Specifies that the image should always be pulled from the repository when the image is updated.
+        - name: decurb-container
+          image: bseo97/decurb-full:v3
+          imagePullPolicy: Always
           ports:
             - name: http
-              containerPort: 8080 # Exposes port 8080 of the container.
+              containerPort: 8080
           resources:
+            requests:
+              cpu: "250m"
+              memory: "384Mi"
             limits:
-              cpu: "1" # Limits the container to use at most 1 CPU.
-              memory: "1Gi" # Limits the container to use at most 1 GiB of memory.
+              cpu: "500m"
+              memory: "512Mi"
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai-secret
+                  key: api-key
       imagePullSecrets: # Specifies the secret to use for pulling private images from DockerHub.
         - name: regcred #  References a Kubernetes secret named "regcred".
 ---

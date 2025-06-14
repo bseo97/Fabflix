@@ -121,6 +121,12 @@
     const form = bar.querySelector('#chatbot-form');
     const input = bar.querySelector('#chatbot-input');
     const messages = bar.querySelector('#chatbot-messages');
+
+    // Autofocus the chat input when the chatbot loads
+    setTimeout(() => { input.focus(); }, 0);
+
+    let lastFollowUp = null; // Track follow-up context
+
     form.onsubmit = async function(e) {
         e.preventDefault();
         const msg = input.value.trim();
@@ -140,10 +146,13 @@
         }
         animateDots();
         try {
+            // Send lastFollowUp if present
+            const body = { message: msg };
+            if (lastFollowUp) body.lastFollowUp = lastFollowUp;
             const resp = await fetch('/api/chatbot', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg })
+                body: JSON.stringify(body)
             });
             const data = await resp.json();
             const reply = data.reply || data.error || 'No response.';
@@ -159,6 +168,8 @@
                 }
             }
             typeBot();
+            // Store lastFollowUp for next turn
+            lastFollowUp = data.lastFollowUp || null;
         } catch (err) {
             loading = false;
             messages.lastChild.textContent = 'Error contacting AI.';
