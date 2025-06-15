@@ -82,7 +82,7 @@
     </dependencies>
 
     <build>
-        <finalName>decurb</finalName>
+        <finalName>ROOT</finalName>
 
         <resources>
             <resource>

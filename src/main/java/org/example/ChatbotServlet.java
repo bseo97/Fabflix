@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 @WebServlet(name = "ChatbotServlet", urlPatterns = "/api/chatbot")
 public class ChatbotServlet extends HttpServlet {
     private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String MODEL = "gpt-3.5-turbo";
+    private static final String MODEL = "gpt-4-1106-preview";
     private static final Gson gson = new Gson();
 
     @Override
@@ -37,16 +37,16 @@ public class ChatbotServlet extends HttpServlet {
                 sb.append(line);
             }
         }
+
         JsonObject reqJson = gson.fromJson(sb.toString(), JsonObject.class);
         String userMessage = reqJson.has("message") ? reqJson.get("message").getAsString().toLowerCase() : "";
         if (userMessage.isEmpty()) {
             response.setStatus(400);
             response.getWriter().write("{\"error\":\"No message provided\"}");
-            System.out.println("ERROR: No message provided"); // Debug log
             return;
         }
-        // SAFETY CHECK: Block any write operation attempts
-        if (userMessage.matches(".*\\\\b(delete|drop|update|insert|alter|create|truncate|replace|grant|revoke|set)\\\\b.*")) {
+
+        if (userMessage.matches(".*\\b(delete|drop|update|insert|alter|create|truncate|replace|grant|revoke|set)\\b.*")) {
             response.getWriter().write("{\"reply\":\"Sorry, for your safety, I can only answer questions and cannot modify the database. If you have any questions about movies, genres, or stars, feel free to ask!\"}");
             return;
         }
@@ -120,7 +120,9 @@ public class ChatbotServlet extends HttpServlet {
             // 1. Number of genres
             if (userMessage.matches(".*how (many|much) genres.*|.*number of genres.*|.*genres are there.*|.*list all genres.*|.*what genres.*")) {
                 introIdx = (int)(Math.random() * friendlyIntros.length);
-                response.getWriter().write("{\"reply\":\"" + friendlyIntros[introIdx] + " There are 22 genres available in Decurb. Want to see which genre has the most movies?\",\"lastFollowUp\":\"most_movies_genre\"}");
+                String reply = friendlyIntros[introIdx] + " There are 22 genres available in Decurb. Want to see which genre has the most movies?";
+                reply = formatReply(reply);
+                response.getWriter().write("{\"reply\":\"" + reply + "\",\"lastFollowUp\":\"most_movies_genre\"}");
                 return;
             }
             // 2. Number of movies
@@ -132,14 +134,18 @@ public class ChatbotServlet extends HttpServlet {
                             if (rs.next()) {
                                 int count = rs.getInt("count");
                                 introIdx = (int)(Math.random() * friendlyIntros.length);
-                                response.getWriter().write("{\"reply\":\"" + friendlyIntros[introIdx] + " There are " + count + " movies available in Decurb. Would you like to see the top-rated movies or explore by genre?\",\"lastFollowUp\":\"top_or_genre\"}");
+                                String reply = friendlyIntros[introIdx] + " There are " + count + " movies available in Decurb. Would you like to see the top-rated movies or explore by genre?";
+                                reply = formatReply(reply);
+                                response.getWriter().write("{\"reply\":\"" + reply + "\",\"lastFollowUp\":\"top_or_genre\"}");
                                 return;
                             }
                         }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    response.getWriter().write("{\"reply\":\"Oops! I couldn't fetch the movie count right now.\"}");
+                    String reply = "Oops! I couldn't fetch the movie count right now.";
+                    reply = formatReply(reply);
+                    response.getWriter().write("{\"reply\":\"" + reply + "\"}");
                     return;
                 }
             }
@@ -383,9 +389,12 @@ public class ChatbotServlet extends HttpServlet {
         // Prepare OpenAI API request
         JsonObject payload = new JsonObject();
         payload.addProperty("model", MODEL);
+        String systemMessage = "You're a helpful assistant. When providing steps, use simple Markdown: each step should be like '- **1.** Do this.' Then end with a short encouraging paragraph.";
         payload.add("messages", gson.toJsonTree(new Object[]{
+            new Message("system", systemMessage),
             new Message("user", userMessage)
         }));
+
         try {
             URL url = new URL(OPENAI_API_URL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -396,6 +405,7 @@ public class ChatbotServlet extends HttpServlet {
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(payload.toString().getBytes(StandardCharsets.UTF_8));
             }
+
             int status = conn.getResponseCode();
             InputStream is = (status >= 200 && status < 300) ? conn.getInputStream() : conn.getErrorStream();
             StringBuilder respSb = new StringBuilder();
@@ -405,22 +415,26 @@ public class ChatbotServlet extends HttpServlet {
                     respSb.append(line);
                 }
             }
-            System.out.println("DEBUG: OpenAI API raw response: " + respSb.toString()); // Debug log
+
             JsonObject openaiResp = gson.fromJson(respSb.toString(), JsonObject.class);
             String reply = openaiResp.has("choices") && openaiResp.getAsJsonArray("choices").size() > 0
                 ? openaiResp.getAsJsonArray("choices").get(0).getAsJsonObject().getAsJsonObject("message").get("content").getAsString()
                 : "Sorry, I couldn't get a response.";
+
+            reply = formatReply(reply);
             JsonObject out = new JsonObject();
             out.addProperty("reply", reply);
             response.getWriter().write(out.toString());
+
         } catch (Exception e) {
             response.setStatus(500);
-            response.getWriter().write("{\"error\":\"Failed to contact OpenAI: " + e.getMessage().replace("\"", "'") + "\"}");
-            System.out.println("ERROR: Exception while contacting OpenAI"); // Debug log
-            e.printStackTrace(); // Print stack trace
+            String reply = "Failed to contact OpenAI: " + e.getMessage().replace("\"", "'");
+            reply = formatReply(reply);
+            response.getWriter().write("{\"error\":\"" + reply + "\"}");
+            e.printStackTrace();
         }
     }
-    // Helper class for message structure
+
     static class Message {
         String role;
         String content;
@@ -429,7 +443,30 @@ public class ChatbotServlet extends HttpServlet {
             this.content = content;
         }
     }
-}
+
+    // Helper method to format chatbot replies
+    private static String formatReply(String reply) {
+        reply = reply.replace("\r\n", "\n").replace("\r", "\n");
+
+        // Fix malformed GPT responses
+        reply = reply.replaceAll("\\*\\*\\s*-\\s*\\*\\*", "- **");
+
+        // Ensure list steps start on new lines
+        reply = reply.replaceAll("(?<!\\n)\\*\\*(\\d+)\\.\\*\\*", "\n- **$1.**");
+
+        // Insert double newline after last step to separate summary
+        int lastIndex = reply.lastIndexOf("- **6.**");
+        if (lastIndex != -1) {
+            int nextNewline = reply.indexOf("\n", lastIndex + 8);
+            if (nextNewline != -1 && nextNewline + 1 < reply.length()) {
+                reply = reply.substring(0, nextNewline) + "\n\n" + reply.substring(nextNewline).replaceFirst("^\n+", "");
+            }
+        }
+
+        reply = reply.replaceAll("\n{3,}", "\n\n");
+        return reply.trim();
+    }
+} 
 
 @WebServlet(name = "UserInfoServlet", urlPatterns = "/api/user-info")
 class UserInfoServlet extends HttpServlet {

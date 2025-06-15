@@ -291,13 +291,12 @@
             transform: translateY(0);
         }
         .greeting-title {
-            font-size: 2.5rem;
-            font-weight: 900;
-            margin-bottom: 18px;
-            text-align: center;
-            color: #222;
             opacity: 0;
-            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.5s ease-in;
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #222;
         }
         thead, th {
             color: #ffe082;
@@ -318,6 +317,7 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <div class="header">
