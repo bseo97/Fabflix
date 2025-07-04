@@ -1,4 +1,4 @@
-# decurb Project 5 - Scalable Deployment with Docker and Kubernetes
+# Decurb - Scalable Deployment with Docker and Kubernetes
 
 ## General
 
