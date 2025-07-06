@@ -7,6 +7,9 @@
 #### Project 5 Video Demo Link:
 https://youtu.be/z5wcuFpePEw
 
+The video is not an updated version that includes the AI chatbot (used open ai) for interactive response, general Q&A based on the database, and other questions.
+Due to safety issues, attempt to modify or harm database through AI chatbot is prevented.
+
 #### Instruction of Deployment:
 1. Set up a Kubernetes cluster on AWS using kOps with 1 control-plane and 3 worker nodes.
 2. Deploy a single MySQL server to handle both master and slave configurations.
